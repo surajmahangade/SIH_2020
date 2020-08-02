@@ -20,7 +20,27 @@ def read_pdf(pdf):
     file1 = open("output_of_pdf_read.txt","w")
     try:
         file1.write(raw['content'])
+    except:
+        read_pdf_by_ocr(pdf)
     file1.close()
+
+def read_pdf_by_ocr(pdf): 
+    '''Writes image of pdfs' data into txt file'''
+    pages = convert_from_path(pdf, 500)
+    image_counter = 1
+    for page in pages:
+        filename = "page_"+str(image_counter)+".jpg"
+        page.save(filename, 'JPEG')
+        image_counter = image_counter + 1
+    filelimit = image_counter-1
+    outfile = "output_of_pdf_read.txt"
+    file2 = open(outfile, "a") #check append mode
+    for i in range(1, filelimit + 1): 
+        filename = "page_"+str(i)+".jpg"
+        text = str(((pytesseract.image_to_string(Image.open(filename)))))
+        text = text.replace('-\n', '')
+        file2.write(text)
+    file2.close()
 
 def read_text_file():
     '''Reads pdf data from txt file'''
@@ -59,6 +79,16 @@ def extract_currency_relations(doc):
         elif money.dep_ == "pobj" and money.head.dep_ == "prep":
             relations.append((money.head.head, money))
     return relations
+
+def currencies():
+    '''NLP for entity extraction
+    Complete usage to be done soon'''
+    nlp = spacy.load('en_core_web_lg')
+    doc = nlp(text_string) 
+    # print("\n*** CURRENCY RELATIONS ***\n")
+    relations = extract_currency_relations(doc)
+    extracted_entities = [(i.text_string, i.label_) for i in doc.ents]
+    print(extracted_entities)
 
 def get_ca_type_1(text_string):  
     '''Regular expressions to extract type of CA'''
