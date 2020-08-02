@@ -299,6 +299,104 @@ class Article_matcher():
 
         print (scoring.output['score'])
 
+
+     def run_pdf_data_extraction(self):
+        pdf_data=self.read_pdfs()
+        if pdf_data is None:
+            print("no pdf")
+            return 
+        cooperate_action,cooperate_action_code=self.cooperate_actions_lists_and_code(self.cooperate_action_list,self.cooperate_action_code)
+        pdf_data=self.find_actions(pdf_data,cooperate_action,cooperate_action_code)
+        self.update_pdf_database(pdf_data)
+        
+        """
+        print(pdf_data)
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        for present,action,content in zip(pdf_data["present"],pdf_data["action"],pdf_data['content']):
+            print(content)
+            print("\n ---------------------------------------")
+            if present:
+                print("action found : "+ action+ "\n"+"content:\n"+content+"\n-----------------------------")
+        """
+
+
+    
+    def update_pdf_database(self,pdf_data):
+
+        for i,j in zip(pdf_data["action"].tolist(),pdf_data["url"].tolist()):
+            a=(i,j)
+            print(a)
+            self.mycursor.execute("UPDATE crawler_2 set ca_type=%s WHERE file_url=%s",a)
+        self.mycursor.execute("UPDATE crawler_2 set ca_checked=1 where ca_checked=0")
+        self.mydb.commit()
+
+
+    
+
+
+    def read_pdfs(self):
+        #context = ssl._create_unverified_context()
+        pdf_links=self.get_pdf_links()
+        if len(pdf_links)==0:
+            print("no links")
+            return 
+        pdf_data= pd.DataFrame()
+        pdf_data["content"]=""
+        pdf_data["present"]=""
+        pdf_data["action"]=""
+        pdf_data["url"]=""
+        print(len(pdf_links))
+        for link in pdf_links:
+            try:
+            #pdf= urllib2.urlopen(link,context=context)
+                r = requests.get(link,verify=False,stream=True,timeout=(5,20))
+                with open('data.pdf', 'wb') as fd:
+                    for chunk in r.iter_content(2000):
+                        fd.write(chunk)
+                print(link)
+                pdf=self.pdf_to_text("data.pdf")
+                pdf_data=pdf_data.append({"content":strip_multiple_whitespaces(pdf),"url":link},ignore_index=True)
+                print("------------------------------")
+                self.mycursor.execute("UPDATE crawler_2 set ca_checked=0 WHERE file_url=%s",(link,))
+            except:
+                self.mycursor.execute("UPDATE crawler_2 set url_error=1 WHERE file_url=%s",(link,))
+                print("couldn't download from "+link)
+
+            self.mydb.commit()
+        return pdf_data  
+
+
+    def pdf_to_text(self,path):
+        pagenums = set()
+        output = StringIO()
+        manager = PDFResourceManager()
+        converter = TextConverter(manager, output, laparams=LAParams())
+        interpreter = PDFPageInterpreter(manager, converter)
+        infile = open(path, 'rb')
+        for page in PDFPage.get_pages(infile, pagenums):
+            interpreter.process_page(page)
+        infile.close()
+        converter.close()
+        text = output.getvalue()
+        output.close
+
+        return text
+
+
+
+    def get_pdf_links(self):
+        self.mycursor.execute("SELECT file_url FROM crawler_2 where url_error=0 and ca_checked is NULL limit 100")
+        pdf_links = pd.DataFrame(self.mycursor.fetchall())
+        #self.mydb.commit()
+        if len(pdf_links)==0:
+            return []
+        pdf_links=pdf_links[0].tolist()
+        print("pdf links:",len(pdf_links))
+        return pdf_links
+
+
+        
+
 if __name__ == "__main__":
     start=time.time()
     while True:
