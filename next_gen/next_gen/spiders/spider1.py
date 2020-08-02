@@ -14,8 +14,18 @@ class spider1(scrapy.Spider):
     # ]
     # c = response.xpath("//following::tr[4]/td[2]/a[contains(@href,'.pdf')]")
     def start_requests(self):
+        # yield scrapy.Request('https://www.ril.com/InvestorRelations/Corporate-Announcements.aspx', self.parse)
+        # yield scrapy.Request('https://www.silvertouch.com/about-us/investors/', self.parse)
+        # yield scrapy.Request('https://www.tcs.com/view-all-corporate-actions#searchIn=/content/tcs/_en&tagId=tcs_discover-tcs/investor-relations/ir-corporate-actions&sortBy=publishedDate&M=yes&Y=yes&IR=true', self.parse)
+        yield scrapy.Request('https://www.dabur.com/in/en-us/investor/investor-information/notices/record-date-book-closure', self.parse)
         yield scrapy.Request('https://www.nestle.in/media/specialannouncements', self.parse)
-                
+        yield scrapy.Request('https://www.dabur.com/in/en-us/investor/investor-information/notices/board-meetings', self.parse)
+        # yield scrapy.Request('https://www.godrejagrovet.com/corporate-announcements.aspx', self.parse)
+        yield scrapy.Request('https://www.dabur.com/in/en-us/investor/investor-information/notices/annual-general-meetings', self.parse) 
+        yield scrapy.Request('https://www.dabur.com/in/en-us/investor/investor-information/notices/notices-of-agm-postal-ballots', self.parse)  
+        
+        
+
     def parse(self, response):
         # link = response.xpath("//a")
         # print(link)
@@ -23,7 +33,7 @@ class spider1(scrapy.Spider):
         # mydatabase = mysql.connector.connect (host = 'localhost', user = 'root',password='', database = 'temp_sih')
         # mycursor = mydatabase.cursor()
         
-        mydatabase = mysql.connector.connect (host='database-1.chm9rhozwggi.us-east-1.rds.amazonaws.com', user='admin', password='',database='pythanos_main',)
+        mydatabase = mysql.connector.connect (host='database-1.chm9rhozwggi.us-east-1.rds.amazonaws.com', user='admin', password='SIH_2020',database='pythanos_main',)
         mycursor = mydatabase.cursor()
 
         print (mycursor)

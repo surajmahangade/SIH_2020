@@ -4,5 +4,3 @@ pip install scrapy
 2. mysql-connector-python
 pip install mysql-connector-python
 
-
-
