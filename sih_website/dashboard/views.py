@@ -19,24 +19,31 @@ from reportlab.platypus import Paragraph
 # Create your views here.
 
 @login_required
+@permission_required ('corp_action_data.view_user')
 def index (request):
     data = corp_action_data.objects.all()
+    data_1 = corp_action_data.objects.filter(ca_type="dividends")
+    data_2 = corp_action_data.objects.filter(ca_type="board_meeting")
+    data_3 = corp_action_data.objects.filter(ca_type="agm_egm")
+    data_4 = corp_action_data.objects.filter(ca_type="bonus")
+    data_5 = corp_action_data.objects.filter(ca_type="book closures")
+    data_6 = corp_action_data.objects.filter(ca_type="rights")
+    data_7 = corp_action_data.objects.filter(ca_type="splits")
+
     content = {
-        'data':data
+        'data':data_1
     }
-    print (content)
+
     return render (request , 'index.html',content)
 
 @login_required
 def report(request):
     #future expected page
-    data = corp_action_data.objects.all()[:5]
-
-
+    data = articles.objects.filter(news_checked__gt = 1)
+    print (type (data))
     content = {
-        'data': data 
+        'data':data
     }
-
     return render (request, 'report.html',content)
 
 @login_required

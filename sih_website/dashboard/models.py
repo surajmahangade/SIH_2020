@@ -41,4 +41,82 @@ class corp_action_data (models.Model):
 
 
 
+class articles(models.Model):
+    url = models.CharField(max_length=1000,default=None)
+    company_name = models.CharField(max_length=500,default=None)
+    error = models.IntegerField(default=None)
+    authors = models.CharField(max_length=1000,default=None)
+    publish_date= models.DateTimeField(default=None)
+    title = models.CharField(max_length=1000,default=None)
+    content = models.CharField(max_length=10000,default=None)
+    keywords = models.CharField(max_length=5000,default=None)
+    filename = models.CharField(max_length=5000,default=None)
+    ranks = models.FloatField(default=None)
+    news_checked = models.IntegerField(default=None)
+    ca_name = models.CharField(max_length=1000,default=None)
 
+
+class company(models.Model):
+    company_name = models.TextField()
+    securities_ex = models.CharField(max_length=10)
+    company_web_link = models.CharField(max_length=10)
+    op_timeline = models.CharField(max_length=10)
+    trading_location = models.CharField(max_length=10)
+
+
+
+class dashboard(models.Model):
+    date_ca = models.TextField()
+    company_name = models.TextField()
+    ca_name = models.TextField()
+    security_id_type = models.TextField()
+    id_value = models.TextField()
+    ex_date = models.DateTimeField()
+    rec_date = models.DateTimeField()
+    pay_date = models.DateTimeField()
+    other = models.CharField(max_length=30)
+    exception = models.BooleanField()
+    remarks = models.CharField(max_length=30)
+
+
+class errors(models.Model):
+    url = models.CharField(max_length=1000)
+    exception = models.CharField(max_length=2000)
+
+
+class historic_data(models.Model):
+    company_name = models.CharField(max_length=255)
+    ca_type = models.CharField(max_length=255)
+    data = models.CharField(max_length=5000)
+
+class links(models.Model):
+    from_id = models.IntegerField()
+    to_id = models.IntegerField()
+
+
+class pages(models.Model):
+    url = models.CharField(max_length=1000)
+    keywords = models.CharField(max_length=5000)
+    website = models.CharField(max_length=5000)
+    error = models.IntegerField()
+    old_rank = models.FloatField()
+    new_rank = models.FloatField()
+    moved = models.IntegerField()
+    filename = models.CharField(max_length=500)
+
+
+
+class securities(models.Model):
+    company_name = models.TextField()
+    security_type = models.CharField(max_length=100)
+    isin = models.CharField(max_length=50)
+    trade_volume = models.TextField()
+    listed_on_exchange = models.CharField(max_length=20)
+    exchange_symbol = models.CharField(max_length=100)
+
+
+
+class webs(models.Model): 
+    name = models.CharField(max_length=100)
+    url = models.CharField(max_length=1000)
+    web_rank = models.FloatField()
