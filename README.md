@@ -124,7 +124,7 @@ continuously learn about sources which could be trusted for specific information
 
 14. **Different data flows / pipelines:**
 
-    
+    ![Selection_066](./README/pipeline1.png)
 
 15. **AI /ML models used:**
 
@@ -307,3 +307,6 @@ Bloomberg – https://www.bloomberg.com/global
 ![Selection_066](./README/report_gen.png)  
 * CA Page:
 ![Selection_066](./README/CA.png)  
+
+* REST API:
+![Selection_066](./README/rest.png)  
