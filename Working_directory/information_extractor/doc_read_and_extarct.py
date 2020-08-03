@@ -23,13 +23,9 @@ def read_pdf(pdf):
     '''Writes and then reads pdf data into txt file'''
     raw = parser.from_file(pdf)
     flag = 1
-    # print(raw['content'])
-    
-    file1 = open("output_of_pdf_read.txt","w")
-    
+    file1 = open("output_of_pdf_read.txt","w")  #store text in separate file
     try:
         file1.write(raw['content'])
-        # print(raw['content'])
     except:
         flag = 0
     if flag==1:
@@ -38,12 +34,13 @@ def read_pdf(pdf):
         text_string = file2.read()
     else:
         text_string = ""
+        print("image")
         text_string = read_pdf_by_ocr(pdf)
     return text_string
 
 
 def read_pdf_by_ocr(pdf): 
-    '''Writes and then reads image of pdfs' data into txt file'''
+    '''Writes and then reads pdf of images data into txt file'''
     pages = convert_from_path(pdf, 500)
     image_counter = 1
     for page in pages:
@@ -52,11 +49,11 @@ def read_pdf_by_ocr(pdf):
         image_counter = image_counter + 1
     filelimit = image_counter-1
     outfile = "pdf_output\\output_of_pdf_read.txt"
-    file1 = open(outfile, "a") #check append mode
+    file1 = open(outfile, "a") 
     for i in range(1, filelimit + 1): 
         filename = "page_"+str(i)+".jpg"
         text = str((pytesseract.image_to_string(Image.open(filename))))
-        text = text.replace('-\n', '')
+        text = text.replace('\n', ' ') # removes new lines
         file1.write(text)
     file1.close()
     file2 = open("pdf_output\\output_of_pdf_read.txt","r") 
@@ -65,6 +62,7 @@ def read_pdf_by_ocr(pdf):
 
 
 def write_docx_file(ms_doc):
+    '''Writes and then reads pdf of images data into txt file'''
     doc = docx.Document("ms_doc")
     all_paras = doc.paragraphs
     len(all_paras)
@@ -73,7 +71,7 @@ def write_docx_file(ms_doc):
         try:
             file1.write(para.text)
         except UnicodeEncodeError:
-            pass
+            file1.write(para.text.replace('\u20b9', 'Rs.')) # handles eeror caused by rupee symbol
     file2 = open("doc_output\\output_of_docx_read.txt","r") 
     text_file = file2.read()
     return text_file
@@ -128,6 +126,8 @@ def get_ca_type_1(text_string):
     '''Regular expressions to extract type of CA'''
     text_string = text_string.lower()
     text_string = text_string.replace('-\n', '')
+    # dictionary containing dividend types, their respective regular expressions and their count
+
     word_search = {'type':["other",
                     "dividend", 
                     "bonus", 
@@ -160,6 +160,7 @@ def get_ca_type_1(text_string):
 
 
 def get_scrip(text_string):
+    '''Function that retunrns the scrip code in the text'''
     scrip=""
     text_string = text_string.lower()
     regex = r"((security code)|(scrip code)|(code))(.*)( \d\d\d\d\d\d)"
@@ -185,6 +186,7 @@ def get_date(pdf):
 
 
 def get_other_dates(pdf,text_string):
+    '''Function to extract all the correct and important dates in the text'''
     ann_date = get_date(pdf)
     ex_date=""
     rec_date=""
@@ -192,7 +194,7 @@ def get_other_dates(pdf,text_string):
     nlp = spacy.load('en_core_web_lg')
     doc = nlp(text_string) 
     extracted_entities = [(i.text, i.label_) for i in doc.ents]
-    # print(extracted_entities)
+    
     dates=set()
     dates.add(pd.to_datetime(ann_date).date())
     for i in extracted_entities:
@@ -211,26 +213,25 @@ def get_other_dates(pdf,text_string):
         rec_date = str(dates[1])
         pay_date = str(dates[2])
     if (datecount==2):
-        # ex_date = str(dates[0])
+        ex_date = str(dates[0])
         rec_date = str(dates[1])
-        pay_date = dates[2]
     return ex_date[0:10],rec_date[0:10],pay_date[0:10]
 
 
 def get_div_data(text_string):
+    '''FUnction to extract details of the dividend'''
     pattern = re.compile(r"( z l | Z l | zl | Zl )")
     text_string = pattern.sub(r" rs 1 ", text_string)
-    # print(text_string)
 
     # face value per share extraction
     fv = ""
     regex = r"(\d+)(.*) ((per|every) equity share(.*))(\d+)"
     match = re.search(regex, text_string)  
     if match != None:
-        fv = "Rs. "+ match.group(1) +"per equity share of Rs. "+ match.group(6)  #remember to change .group(par) after changing regex
+        fv = "Rs. "+ match.group(1) +"per equity share of Rs. "+ match.group(6) 
     # percentage extraction
     perc=""
-    regex = r"((\d+)\.(\d+)( |)%) | (\d+)( |)%" # considers the first occurence
+    regex = r"((\d+)\.(\d+)( |)%) | (\d+)( |)%" 
     match = re.search(regex, text_string)  
     if match != None:
         perc = match.group(0)
@@ -238,8 +239,11 @@ def get_div_data(text_string):
 
 
 def get_ss_data(text_string):
+    '''Function to extract details of the stock splits'''
+
     pattern = re.compile(r"( z l | Z l | zl | Zl )") 
     # This fixes a small errror that occurs when rupee symbol is used which misreads 1 as l
+
     text_string = pattern.sub(r" rs 1 ", text_string)
 
     # face value per share
@@ -247,32 +251,25 @@ def get_ss_data(text_string):
     regex = r"(\d+)(.*) ((per|every) equity share(.*))(\d+)"
     match = re.search(regex, text_string)  
     if match != None:
-        fv = "Rs. "+ match.group(1) +"per equity share of Rs. "+ match.group(6)  #remember to change .group(par) after changing regex
-    return fv
-
-
-# def connect_database():
-#     conn = mysql.connector.connect(host='database-1.chm9rhozwggi.us-east-1.rds.amazonaws.com',
-#                                         user='admin',
-#                                         password='SIH_2020',
-#                                         database='web_server')
-#     cursor = conn.cursor()
-#     if conn.is_connected():
-#         cursor.execute("show tables")
-#         res = cursor.fetchall()
-#         print("Available tables: ", res,"\n")
-
-#     return(conn,cursor)
+        fv = "Rs. "+ match.group(1) +"per equity share of Rs. "+ match.group(6)  
+    # percentage extraction if any
+    perc=""
+    regex = r"((\d+)\.(\d+)( |)%) | (\d+)( |)%" 
+    match = re.search(regex, text_string)  
+    if match != None:
+        perc = match.group(0)
+    return perc,fv
 
 
 def pdf_load(conn,cursor):
-    cursor.execute("SELECT url_of_file,company_name FROM dashboard_file_download where ca_extracted=0 limit 100")
+    '''Function to download documents from urls provided by crawler 2
+    These are confirmed news
+    The required fields/information is extracted and then stored in the table dashboard_dashboard'''
+
+    cursor.execute("SELECT url_of_file FROM dashboard_file_download where ca_extracted=0 limit 10")
     pdf_links_from_table = pd.DataFrame(cursor.fetchall())
     if len(pdf_links_from_table)!=0:
-        # print(pdf_links_from_table)
         pdf_links = pdf_links_from_table[0].tolist()
-        # company_name = pdf_links[1].tolist()
-        # print("company links: ",company_name)
         
         for link in pdf_links:
             # try:
@@ -280,99 +277,131 @@ def pdf_load(conn,cursor):
                 with open('data.pdf', 'wb') as fd:
                     for chunk in r.iter_content(2000):
                         fd.write(chunk)
-                
+                        
                 print(link)
-                text_string = read_pdf("data.pdf")
+                text_string = read_pdf("data.pdf")]
                 
-                print("------------------------------")
-                # print(text_string)
-                # print("------------------------------")
+                print("------------------------------")]
                 
-                
-                sql = "UPDATE dashboard_file_download SET ca_extracted=0 WHERE url_of_file=%s"
-                cursor.execute(sql ,(link,))
+                cursor.execute("UPDATE dashboard_file_download SET ca_extracted=1 WHERE url_of_file=%s" ,(link,))
 
                 scrip_code = get_scrip(text_string)
                 date_ca = get_date("data.pdf")
+                # date_ca = get_date(pdf)
                 ca_name = get_ca_type_1(text_string)
                 ex_date, rec_date, pay_date = get_other_dates("data.pdf", text_string)
+                # ex_date, rec_date, pay_date = get_other_dates(pdf, text_string)
                 if scrip_code!="":
                     security_id_type = "scrip code"
                 else:
                     security_id_type = "trading symbol"
-                print (date_ca ,ca_name, security_id_type,ex_date,rec_date , pay_date )
+                
+                company_name = ""
+
+                sql_select = "SELECT url_of_file,company_name FROM dashboard_file_download WHERE ca_extracted=1 limit 10"
+                cursor.execute(sql_select)
+                records = cursor.fetchall()
+
+                for row in records:
+                    if row[0]==link:
+                        company_name = row[1]
+                print("---", date_ca ,ca_name, security_id_type,ex_date,rec_date , pay_date, scrip_code, "  CN  ",company_name)
+
+                sql = ""
 
                 if ca_name=='dividend':
                     perc, fv = get_div_data(text_string)
-                    remarks = fv
+                    if perc!='':
+                        remarks = fv + " Percentage: "+perc
+                    else:
+                        remarks = fv
                     sql = """INSERT INTO dashboard_dashboard (date_ca , 
+                    company_name,
                     ca_name, 
                     security_id_type,
                     ex_date,
                     rec_date , 
                     pay_date ,
-                    remarks)
+                    remarks,
+                    scrip_code,
+                    link)
                     VALUES
                     (%s, 
+                    %s,
                     %s, 
                     %s,
                     %s,
                     %s , 
                     %s ,
+                    %s,
+                    %s,
+                    %s,
                     %s) """
-                    values = (date_ca ,ca_name, security_id_type,ex_date,rec_date , pay_date ,remarks)
-                    # cursor.execute(sql,values)
-                    print (date_ca ,ca_name, security_id_type,ex_date,rec_date , pay_date ,remarks)
+                    values = (date_ca ,company_name, ca_name, security_id_type,ex_date,rec_date , pay_date ,remarks, scrip_code, link)
+                    print (date_ca ,company_name, ca_name, security_id_type,ex_date,rec_date , pay_date ,remarks, scrip_code, fv)
                 
                 elif ca_name=='stock split':
-                    fv = get_ss_data(text_string)
-                    remarks = fv
+                    perc, fv = get_ss_data(text_string)
+                    if perc!='':
+                        remarks = fv + " Percentage: "+perc
+                    else:
+                        remarks = fv
                     sql = """INSERT INTO dashboard_dashboard (date_ca , 
+                    company_name,
                     ca_name , 
                     security_id_type,
                     ex_date , 
                     rec_date , 
                     pay_date ,
-                    remarks )
+                    remarks,
+                    scrip_code,
+                    link )
                     VALUES
                     (%s , 
+                    %s ,
                     %s , 
                     %s,
                     %s , 
                     %s , 
                     %s ,
+                    %s ,
+                    %s ,
                     %s ) """
-                    values = (date_ca , ca_name , security_id_type, ex_date , rec_date , pay_date , remarks )
-                    
-                    print (date_ca ,ca_name, security_id_type,ex_date,rec_date , pay_date ,remarks)
+                    values = (date_ca , company_name, ca_name , security_id_type, ex_date , rec_date , pay_date , remarks, scrip_code, link )
+                    print (date_ca ,company_name, ca_name, security_id_type,ex_date,rec_date , pay_date ,remarks, scrip_code)
                 else:       
-                    remarks='else'
+                    remarks='Confirmed by news source'
                     sql = """INSERT INTO dashboard_dashboard (date_ca , 
+                    company_name,
                     ca_name , 
                     security_id_type,
                     ex_date , 
                     rec_date , 
                     pay_date ,
-                    remarks)
+                    remarks,
+                    scrip_code,
+                    link)
                     VALUES 
                     (%s, 
+                    %s,
                     %s , 
                     %s,
                     %s , 
                     %s , 
+                    %s,
+                    %s,
                     %s,
                     %s) """
-                    values = (date_ca , ca_name , security_id_type, ex_date , rec_date , pay_date , remarks )
-
+                    values = (date_ca , company_name, ca_name , security_id_type, ex_date , rec_date , pay_date , remarks, scrip_code, link )
                 cursor.execute(sql,values)
                 conn.commit()
-                # cursor.execute(sql)
                 
             # except:
             #     # cursor.execute("UPDATE crawler_2 set url_error=1 WHERE url_of_file=%s",(link,))
             #     print("couldn't download from "+link)
 
 
+# Database Connection
 conn = mysql.connector.connect(host='database-1.chm9rhozwggi.us-east-1.rds.amazonaws.com',
                                         user='admin',
                                         password='SIH_2020',
@@ -384,13 +413,12 @@ if conn.is_connected():
     print("Available tables: ", res,"\n")
 
 
-
 if __name__ == "__main__":
     start_time = time.time()
     # conn,cursor = connect_database()
     print(conn)
 
     pdf_load(conn,cursor)
- 
 
     print("main time = ", time.time() - start_time)
+        
