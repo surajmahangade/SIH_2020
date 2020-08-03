@@ -45,7 +45,7 @@ def report(request):
     content = {
         'data':data
     }
-    return render (request, 'report.html',content)
+    return render (request, 'new.html',content)
 
 @login_required
 def dash_web(request):
