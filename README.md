@@ -310,3 +310,6 @@ Bloomberg – https://www.bloomberg.com/global
 
 * REST API:
 ![Selection_066](./README/rest.png)  
+
+* Report Generation:
+![Selection_066](./README/report.png)  
