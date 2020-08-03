@@ -68,7 +68,7 @@ continuously learn about sources which could be trusted for specific information
 
 13. **Architecture Diagram:**
 
-![process flow diagram](/home/ritoo/.config/Typora/typora-user-images/image-20200803125311885.png)
+![process flow diagram](https://github.com/prathameshn99/SM445_PYTHANOS/blob/master/README/pythanos_process%20flow%20diagram.png)
 
 14. **Different data flows / pipelines:**
 
