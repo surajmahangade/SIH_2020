@@ -3,7 +3,6 @@
 # Script to collect and find similar articles from the database and rank the 
 # sites providing them by the order of reliability using fuzzy logic
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
 import tensorflow_hub as hub
 import numpy as np
 import tensorflow
@@ -53,73 +52,52 @@ class Article_matcher():
 # Initializing the list of CA codes and event types in a dictionary format
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  
     def initialize_CA_vars(self):
-        cooperate_action_code=["ANN","ARR" ,"ASSM" ,"BB" 	,"BKRP" ,"BON" ,"BR" ,
+        cooperate_action_code=["ANN","ARR" ,"ASSM"	,"BKRP" ,"BR" ,
                                 "CAPRD" 	,"AGM" 	,"CONSD" 	,"CONV" 	,"CTX" 	,
-                                "CURRD","DIST" 	,"DIV" 	, "DMRGR ","DRIP" ,"DVST" ,"ENT" 	,"FRANK" ,"FTT" 	,"FYCHG" ,                           
+                                "CURRD","DIST" 	,"DIV" 	, "DMRGR ","DRIP" ,"DVST" ,                           
                                 "INCHG" ,"ISCHG" ,"LAWST","LCC" ,"LIQ" 	,"LSTAT" ,"LTCHG" ,"MKCHG" ,"MRGR" 	,"NLIST" ,
-                                "ODDLT","PID" ,"PO" ,"PRCHG" ,"PRF" ,"PVRD" 	,"RCAP"  ,"REDEM" ,	"RTS" ,"SCCHG" ,"SCSWP" ,
-                                "SD" ,"SECRC" ,"TKOVR","IPO"]
+                                "ODDLT" ,"PRCHG" ,"PRF" ,"PVRD","RCAP"  ,"REDEM" ,	"RTS" ,"SCCHG" ,"SCSWP" ,
+                                "SECRC" ,"TKOVR"]
 
-        cooperate_action_list=[ "Acquisition","Announcement","Arrangement","Assimilation","Buy Back","Bankruptcy","Bonus","Bonus Issue","Bonus Rights",
-                                    "Cash Dividend","Class Action","Conversion of convertible bonds","Coupon Payment","Delisting","Dutch Auction",
-                                    "Early Redemption","Final Redemption","General Announcement","Initial Public Offering","Lottery",
-                                    "Name Change","Odd lot Tender","Optional Dividend","Optional Put","Other Event","Partial Redemption",
-                                    "Par Value Change","Reverse Stock Split","Rights Auction","Rights Issue","Scheme of Arrangement",
+        cooperate_action_list=["Acquisition","Bonus Issue","Bonus Rights","Cash Dividend",
+                                    "Final Redemption","General Announcement",
+                                    "Name Change","Optional Dividend","Partial Redemption",
+                                    "Par Value Change","Reverse Stock Split","Rights Auction","Rights Issue",
                                     "Scrip Dividend","Scrip Issue","Spin-Off","Spin Off","Stock Dividend","Subscription Offer","Tender Offer",
                                     "Warrant Exercise","Warrant Expiry","Warrant Issue","annual general meeting",
                                         "Capital Reduction",
                                         "Company Meeting","board meeting"
                                         "Consolidation" ,"stock split",
-                                        "Conversion",
-                                        "Certificate Exchange",
-                                        "Currency Redenomination",
                                         "Distribution",
                                         "Dividend",
                                         "Demerger",
                                         "Dividend Reinvestment Plan",
                                         "Divestment",
                                         "Entitlements",
-                                        "Franking",
-                                        "Financial Transaction Tax",
-                                        "Financial Year Change",
-                                        "International Code Change",
-                                        "Incorporation Change",
                                         "Issuer Name Change",
                                         "Lawsuit",
-                                        "Local Code Change",
-                                        "Liquidation",
                                         "Listing Status Change",
                                         "Lot Change",
-                                        "Market Segment Change",
                                         "Merger",
                                         "New Listing",
-                                        "Odd Lot Offer",
-                                        "Property Income Distribution",
-                                        "Purchase Offer",
-                                        "Primary Exchange Change",
                                         "Preferential Offer",
                                         "Parvalue Redenomination",
                                         "Return of Capital",
                                         "Preference Redemption",
-                                        "Rights",
                                         "Security Description Change",
-                                        "Security Swap",
                                         "Subdivision",
-                                        "Security Reclassification",
-                                        "Takeover","Equity"]
+                                        "Takeover","Equity","Debt"]
 
         return cooperate_action_code,cooperate_action_list
 
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # Loading and executing the universal Google encoder script for NLP
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 
-
-
     def load_universal_encoder(self,module_url):
         print("--------------------------------loading_model------------------------------------------")
         embed = hub.Module(module_url)
         print("model loaded")
-        return embe
+        return embed
     
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # Connecting to RDS database 'pythanos_main'
@@ -142,7 +120,7 @@ class Article_matcher():
         articles_database = pd.DataFrame(self.mycursor.fetchall(),columns=["id","url","content","ranks","company_name"])
         self.mycursor.execute("UPDATE articles set news_checked=0 where news_checked is NULL")
         self.mydb.commit()
-        
+        print(articles_database)
         return articles_database
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # Updating the verification status, CA name after running the encoder model
@@ -150,10 +128,10 @@ class Article_matcher():
 
     def update_articles_table(self,articles_database):
         print("updating database")
-        for action,url,matches in zip(articles_database["action"].tolist(),articles_database["url"].tolist(),articles_database["matches"].tolist()):
+        for action,url,matches,rank in zip(articles_database["action"].tolist(),articles_database["url"].tolist(),articles_database["matches"].tolist(),articles_database["ranks"].tolist()):
             #print("updating database")
-            a=(matches,action,url)
-            self.mycursor.execute("UPDATE articles set news_checked=%s,ca_name=%s WHERE news_checked=0 and url=%s",a)
+            a=(matches,action,rank,url)
+            self.mycursor.execute("UPDATE articles set news_checked=%s,ca_name=%s,ranks=%s WHERE news_checked=0 and url=%s",a)
         #self.mycursor.execute("UPDATE crawler_2 set ca_checked=1 where ca_checked=0")
         self.mydb.commit()
         print("database updated")
@@ -207,7 +185,7 @@ class Article_matcher():
         print(articles_database)
 
         return articles_database
-            
+
 
     def find_actions(self,articles_database,cooperate_action,cooperate_action_code):
         articles_database["action"]="" 
@@ -228,12 +206,45 @@ class Article_matcher():
                     articles_database.loc[num,['action']]+=","+i
         
         articles_database=articles_database.loc[articles_database["present"]]
-        articles_database=articles_database.loc[articles_database["company_name"].str.len()>0]
+        articles_database=articles_database.loc[~(articles_database["company_name"]=="NULL")]
         articles_database=articles_database.loc[articles_database["action"].str.len()>0]
         #articles_database["company_name"] = articles_database["company_name"].str[1:]
         return articles_database
 
-   
+    def hasNumbers(self,inputString):
+        return any(char.isdigit() for char in inputString)
+
+
+    def get_CA_info(self,articles_database):
+        print("H----------------------------------------------------------------------------------------------------------H")
+        articles_database=articles_database.loc[articles_database["present"]]
+        nlp = spacy.load("en_core_web_lg")       
+        print(articles_database)
+        for ca,url,content in zip(articles_database["action"],articles_database["url"],articles_database["content"]):
+            print(ca+"  link"+url)
+            print(content)
+            #tagged_text = nlp(content)
+            #extractedentities = [(i.text, i.label_) if i.label_=="DATE" else ("","") for i in tagged_text.ents]
+            #print(content)
+            #dates=[]
+            #for i,j in extractedentities:
+            #    if j=="":
+            #        continue
+            #    elif(self.hasNumbers(i)):
+            #        dates.append(content[content.find(i):content.find(i)+len(i)])
+
+            #print(dates)
+            #print(extractedentities)
+            print("---------------------------------------------------------------------")
+            
+        
+    def company_name_security_master(self):
+        self.mycursor.execute("SELECT name_of_company FROM security_master")
+        company_name=pd.DataFrame(self.mycursor.fetchall())
+        company_name.columns=["name"]
+        company_name=company_name[~company_name['name'].duplicated()]
+        print(company_name)
+
 
     def remove_stopwords_from_database(self,articles_database):
         links=articles_database['url'].tolist()
@@ -245,12 +256,14 @@ class Article_matcher():
             message = strip_punctuation(message)
             #message=stem_text(message)
             message = strip_multiple_whitespaces(message)
+            message=strip_numeric(message)
             stop_words_removed.append(remove_stopwords(message))
         return links,stop_words_removed,CA_names
 
 
 
     def run_universal_encoder(self,stop_words_removed):
+
         similarity_input_placeholder = tensorflow.placeholder(tensorflow.string, shape=(None))
         similarity_message_encodings = self.embed(similarity_input_placeholder)
         corr=None
@@ -269,6 +282,7 @@ class Article_matcher():
                     message_embeddings_=np.append(message_embeddings_,session.run(similarity_message_encodings, feed_dict={similarity_input_placeholder: sentences}),axis=0)
             message_embeddings_ = preprocessing.normalize(message_embeddings_, norm='l2')          
             corr = np.inner(message_embeddings_, message_embeddings_)
+        print(corr)
         return corr
     
     def check_matching_count_of_articles(self,articles_database,corr,stop_words_removed,links,threshold=0.92):
@@ -277,17 +291,114 @@ class Article_matcher():
         for i in range(len(stop_words_removed)):
                 if len(np.where(corr[i]>threshold)[0].tolist())>1:
                     for n,m in zip(np.where(corr[i]>threshold)[0].tolist(),itemgetter(*np.where(corr[i]>threshold)[0].tolist())(stop_words_removed)):
-                        print(n,np.where(corr[i]>threshold)[0].tolist())
-                        articles_database.loc[articles_database.url.str.contains(links[n],case=False),"matches"]=len(np.where(corr[i]>threshold)[0].tolist()) 
+                        articles_database.loc[articles_database.url.str.contains(links[n],case=False),"matches"]=len(np.where(corr[i]>threshold)[0].tolist())
+                        articles_database.loc[articles_database.url.str.contains(links[n],case=False),"ranks"]=len(np.where(corr[i]>threshold)[0].tolist())*0.6+0.4*articles_database.loc[articles_database.url.str.contains(links[n],case=False),"ranks"]
+                        #print(articles_database.loc[np.where(corr[i]>threshold)[0].tolist(),"content"])
+                        #j
                 else:
                     n=np.where(corr[i]>threshold)[0].tolist()[0]
                     articles_database.loc[articles_database.url.str.contains(links[n],case=False),"matches"]=1                    
         print("----------------")
-        print(articles_database.loc[articles_database['matches'] > 0 ])
+        articles_database.action = articles_database.action.str[1:]
+        print(articles_database.loc[articles_database['matches'] > 1,["content","company_name","matches","action"]])
+        temp=articles_database.where(articles_database['matches'] < 1).dropna()
+        for content,action,matches in zip(temp["content"],temp["action"],temp["matches"]):
+            #print(type(i))
+            #print(i[0])
+
+            #print(action+"matches:"+str(matches)+"\n"+content)
+            print("------------------------")
+
         return articles_database
 
 
+    def write_output_file(self,corr,stop_words_removed,links,CA_names,threshold=0.93):
+        already_checked=[]
+        nomatch=0
+        print(time.time()-start)
+        with open("output.txt", "w") as file1:
+            file1.write("##########################################----Testing New article-----####################################################"+"\n")
+            for i in range(len(stop_words_removed)):
+                if len(np.where(corr[i]>threshold)[0].tolist())>1:
+                    file1.write("----------------------All articles Below match with each other-------------------"+"\n")
+                    for n,m in zip(np.where(corr[i]>threshold)[0].tolist(),itemgetter(*np.where(corr[i]>threshold)[0].tolist())(stop_words_removed)):
+                        if not (np.where(corr[i]>threshold)[0].tolist() in already_checked ):
+                            file1.write("link of the below article :"+links[n]+"   CAs found : "+CA_names[n]+"   similarity : "+str(corr[i,n])+"\n")
+                            file1.write(m+"\n")
+                            file1.write("--------new matching article---------"+"\n")
+                        else:
+                            break
+                    already_checked.append(np.where(corr[i]>threshold)[0].tolist())
+                else:
+                    nomatch+=1
+                    n=np.where(corr[i]>threshold)[0].tolist()[0]
+                    loc=np.where(corr[i]>threshold)[0].tolist()[0]
+                    file1.write("---------------------------No match------------------------")
+                    file1.write("link of the below article :"+links[n]+"   CAs found : "+CA_names[n]+"   similarity : "+str(corr[i,n])+"\n")
+                    file1.write(itemgetter(*np.where(corr[i]>threshold)[0].tolist())(stop_words_removed)+"\n")
+                    file1.write("--------------------------------------------------------")
+                    
+                file1.write("##########################################----Testing New article-----####################################################"+"\n")
     
+    def get_pdf_links(self):
+        self.mycursor.execute("SELECT file_url FROM crawler_2 where url_error=0 and ca_checked is NULL limit 10")
+        pdf_links = pd.DataFrame(self.mycursor.fetchall())
+        #self.mydb.commit()
+        if len(pdf_links)==0:
+            return []
+        pdf_links=pdf_links[0].tolist()
+        print("pdf links:",len(pdf_links))
+        return pdf_links
+    
+
+    def pdf_to_text(self,path):
+        pagenums = set()
+        output = StringIO()
+        manager = PDFResourceManager()
+        converter = TextConverter(manager, output, laparams=LAParams())
+        interpreter = PDFPageInterpreter(manager, converter)
+        infile = open(path, 'rb')
+        for page in PDFPage.get_pages(infile, pagenums):
+            interpreter.process_page(page)
+        infile.close()
+        converter.close()
+        text = output.getvalue()
+        output.close
+
+        return text
+
+    
+    def read_pdfs(self):
+        #context = ssl._create_unverified_context()
+        pdf_links=self.get_pdf_links()
+        if len(pdf_links)==0:
+            print("no links")
+            return 
+        pdf_data= pd.DataFrame()
+        pdf_data["content"]=""
+        pdf_data["present"]=""
+        pdf_data["action"]=""
+        pdf_data["url"]=""
+        print(len(pdf_links))
+        for link in pdf_links:
+            try:
+            #pdf= urllib2.urlopen(link,context=context)
+                r = requests.get(link,verify=False,stream=True,timeout=(5,20))
+                with open(link+'.pdf', 'wb') as fd:
+                    for chunk in r.iter_content(2000):
+                        fd.write(chunk)
+                print(link)
+                pdf=self.pdf_to_text("data.pdf")
+                pdf_data=pdf_data.append({"content":strip_multiple_whitespaces(pdf),"url":link},ignore_index=True)
+                print("------------------------------")
+                self.mycursor.execute("UPDATE crawler_2 set ca_checked=0 WHERE file_url=%s",(link,))
+            except:
+                self.mycursor.execute("UPDATE crawler_2 set url_error=1 WHERE file_url=%s",(link,))
+                print("couldn't download from "+link)
+
+            self.mydb.commit()
+        return pdf_data  
+
     def run_article_matching(self):
         
         #articles_database=self.load_database(["tenderfoot","tenderfoot_three"])
@@ -299,15 +410,49 @@ class Article_matcher():
         cooperate_action_code,cooperate_action_list=self.initialize_CA_vars()
         cooperate_action,cooperate_action_code=self.cooperate_actions_lists_and_code(self.cooperate_action_list,self.cooperate_action_code)
         articles_database=self.find_actions(articles_database,cooperate_action,cooperate_action_code)
+        #articles_database=self.check_company_names(articles_database)
+        self.get_CA_info(articles_database)
         links,stop_words_removed,CA_names=self.remove_stopwords_from_database(articles_database)
         corr=self.run_universal_encoder(stop_words_removed)
-        articles_database=self.check_matching_count_of_articles(articles_database,corr,stop_words_removed,links,threshold=0.92)
-        self.update_articles_table(articles_database)
+        articles_database=self.check_matching_count_of_articles(articles_database,corr,stop_words_removed,links,threshold=0.95)
+        #self.update_articles_table(articles_database)
+        self.write_output_file(corr,stop_words_removed,links,CA_names)
+        
         return articles_database
     
+    def update_pdf_database(self,pdf_data):
+
+        for i,j in zip(pdf_data["action"].tolist(),pdf_data["url"].tolist()):
+            a=(i,j)
+            print(a)
+            self.mycursor.execute("UPDATE crawler_2 set ca_type=%s WHERE file_url=%s",a)
+        self.mycursor.execute("UPDATE crawler_2 set ca_checked=1 where ca_checked=0")
+        self.mydb.commit()
         
-    
-   
+    def reset_database(self):
+        self.mycursor.execute("UPDATE articles set news_checked=NULL")
+        self.mycursor.execute("UPDATE crawler_2 set ca_checked=NULL")
+        self.mydb.commit()
+
+    def run_pdf_data_extraction(self):
+        pdf_data=self.read_pdfs()
+        if pdf_data is None:
+            print("no pdf")
+            return 
+        cooperate_action,cooperate_action_code=self.cooperate_actions_lists_and_code(self.cooperate_action_list,self.cooperate_action_code)
+        pdf_data=self.find_actions(pdf_data,cooperate_action,cooperate_action_code)
+        self.update_pdf_database(pdf_data)
+        
+        """
+        print(pdf_data)
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        for present,action,content in zip(pdf_data["present"],pdf_data["action"],pdf_data['content']):
+            print(content)
+            print("\n ---------------------------------------")
+            if present:
+                print("action found : "+ action+ "\n"+"content:\n"+content+"\n-----------------------------")
+        """
+
 
     def fuzzy_logic(self):
         quality = ctrl.Antecedent(np.arange(0, 100, 1), 'suraj')
@@ -342,116 +487,48 @@ class Article_matcher():
 
         print (scoring.output['score'])
 
-
-     def run_pdf_data_extraction(self):
-        pdf_data=self.read_pdfs()
-        if pdf_data is None:
-            print("no pdf")
-            return 
-        cooperate_action,cooperate_action_code=self.cooperate_actions_lists_and_code(self.cooperate_action_list,self.cooperate_action_code)
-        pdf_data=self.find_actions(pdf_data,cooperate_action,cooperate_action_code)
-        self.update_pdf_database(pdf_data)
-        
-        """
-        print(pdf_data)
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        for present,action,content in zip(pdf_data["present"],pdf_data["action"],pdf_data['content']):
-            print(content)
-            print("\n ---------------------------------------")
-            if present:
-                print("action found : "+ action+ "\n"+"content:\n"+content+"\n-----------------------------")
-        """
-
-
-    
-    def update_pdf_database(self,pdf_data):
-
-        for i,j in zip(pdf_data["action"].tolist(),pdf_data["url"].tolist()):
-            a=(i,j)
-            print(a)
-            self.mycursor.execute("UPDATE crawler_2 set ca_type=%s WHERE file_url=%s",a)
-        self.mycursor.execute("UPDATE crawler_2 set ca_checked=1 where ca_checked=0")
-        self.mydb.commit()
-
-
-    
-
-
-    def read_pdfs(self):
-        #context = ssl._create_unverified_context()
-        pdf_links=self.get_pdf_links()
-        if len(pdf_links)==0:
-            print("no links")
-            return 
-        pdf_data= pd.DataFrame()
-        pdf_data["content"]=""
-        pdf_data["present"]=""
-        pdf_data["action"]=""
-        pdf_data["url"]=""
-        print(len(pdf_links))
-        for link in pdf_links:
-            try:
-            #pdf= urllib2.urlopen(link,context=context)
-                r = requests.get(link,verify=False,stream=True,timeout=(5,20))
-                with open('data.pdf', 'wb') as fd:
-                    for chunk in r.iter_content(2000):
-                        fd.write(chunk)
-                print(link)
-                pdf=self.pdf_to_text("data.pdf")
-                pdf_data=pdf_data.append({"content":strip_multiple_whitespaces(pdf),"url":link},ignore_index=True)
-                print("------------------------------")
-                self.mycursor.execute("UPDATE crawler_2 set ca_checked=0 WHERE file_url=%s",(link,))
-            except:
-                self.mycursor.execute("UPDATE crawler_2 set url_error=1 WHERE file_url=%s",(link,))
-                print("couldn't download from "+link)
-
-            self.mydb.commit()
-        return pdf_data  
-
-
-    def pdf_to_text(self,path):
-        pagenums = set()
-        output = StringIO()
-        manager = PDFResourceManager()
-        converter = TextConverter(manager, output, laparams=LAParams())
-        interpreter = PDFPageInterpreter(manager, converter)
-        infile = open(path, 'rb')
-        for page in PDFPage.get_pages(infile, pagenums):
-            interpreter.process_page(page)
-        infile.close()
-        converter.close()
-        text = output.getvalue()
-        output.close
-
-        return text
-
-
-
-    def get_pdf_links(self):
-        self.mycursor.execute("SELECT file_url FROM crawler_2 where url_error=0 and ca_checked is NULL limit 100")
-        pdf_links = pd.DataFrame(self.mycursor.fetchall())
-        #self.mydb.commit()
-        if len(pdf_links)==0:
-            return []
-        pdf_links=pdf_links[0].tolist()
-        print("pdf links:",len(pdf_links))
-        return pdf_links
-
-
-
-
 if __name__ == "__main__":
     start=time.time()
     while True:
         try:
-            matcher=Article_matcher("https://tfhub.dev/google/universal-sentence-encoder/1?tf-hub-format=compressed")
+        #    matcher=Article_matcher("https://tfhub.dev/google/universal-sentence-encoder/4")
+            matcher=Article_matcher("https://tfhub.dev/google/universal-sentence-encoder-large/3")
+            #matcher=Article_matcher("https://tfhub.dev/google/universal-sentence-encoder/1?tf-hub-format=compressed")
             break
         except :
-            time.sleep(5)
+            time.sleep(1)
             continue
     print("database_connected")   
     while True:
+        #matcher.company_name_security_master()
+        matcher.reset_database()
         articles_database=matcher.run_article_matching()
+    #    pdf_data=matcher.run_pdf_data_extraction()
         print(time.time()-start)
         start=time.time()
     
+    """
+    matcher.fuzzy_logic()
+    quality = 100 #float(random.randint(0,11))
+    service = 100 #float(random.randint(0,11))
+    prev_score = 0 # Prev score
+    matcher.calc(quality,service,prev_score)
+    
+    print(time.time()-start)
+    articles_database=pdf_data
+    with open("dataset.txt", "w") as file1:
+        for i,j,action in zip(articles_database["content"],articles_database["url"],articles_database["action"]):
+            file1.write("link:"+j+"    Action :  "+action+"\n")
+            file1.write(i)
+            #print(i)
+            file1.write("----------------------------- \n \n \n ")
+
+    for present,i,j,action in zip(articles_database["present"],articles_database["content"],articles_database["url"],articles_database["action"]):
+        if present:
+            print("url:" +j)
+            print("----------")
+            print(i)
+            print("----------")
+            print("action:  ",action)
+            print("##########################")
+    """
