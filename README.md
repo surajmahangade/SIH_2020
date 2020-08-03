@@ -1,25 +1,32 @@
 # SM445_PYTHANOS
-This Repo is maintained by team PYTHANOS for SIH 2020 under the problem statement number SM445
+Welcome to the mater branch of team PYTHANOS! 
 
 # Introduction
 1. Problem Statement No. - SM445
+
 2. Team Name - PYTHANOS
-3. Participant details
 
-    1. Prathamesh Nerkar, FR. C. RODRIGUES INSTITUTE OF TECHNOLOGY, 8108800918, prathameshn99@gmail.com
-    2. Abhijit Acharya,FR. C. RODRIGUES INSTITUTE OF TECHNOLOGY,9867256109, abhijit_acharya@outlook.com
-    3. Suraj Mahangade,  FR. C. RODRIGUES INSTITUTE OF TECHNOLOGY, 9820871262, surajmahangade9999@yahoo.com
-    4. Aishwarya Anna Mathew, FR. C. RODRIGUES INSTITUTE OF TECHNOLOGY, 8108131266, hello.ash99@gmail.com
-    5. Ritoo Verma, FR. C. RODRIGUES INSTITUTE OF TECHNOLOGY, 7021835514, ritoov2@gmail.com
-    6. Varad More, FR. C. RODRIGUES INSTITUTE OF TECHNOLOGY,
-    9967438112, varadmore1@gmail.com 
+3. Participant details:
 
-4. Mentor details
+    | Name                   | Institute                                | Mobile No. | Email ID                     |
+    | ---------------------- | ---------------------------------------- | ---------- | ---------------------------- |
+    | Prathamesh Nerkar      | FR. C. RODRIGUES INSTITUTE OF TECHNOLOGY | 8108800918 | prathameshn99@gmail.com      |
+    | Abhijit Acharya        | FR. C. RODRIGUES INSTITUTE OF TECHNOLOGY | 9867256109 | abhijit_acharya@outlook.com  |
+    | Suraj Mahangade        | FR. C. RODRIGUES INSTITUTE OF TECHNOLOGY | 9820871262 | surajmahangade9999@yahoo.com |
+    | Aishwarya Anna Mathew, | FR. C. RODRIGUES INSTITUTE OF TECHNOLOGY | 8108131266 | hello.ash99@gmail.com        |
+    | Ritoo Verma            | FR. C. RODRIGUES INSTITUTE OF TECHNOLOGY | 7021835514 | ritoov2@gmail.com            |
+    | Varad More             | FR. C. RODRIGUES INSTITUTE OF TECHNOLOGY | 9967438112 | varadmore1@gmail.com         |
+
+4. Mentor details:
+
+    | Name               | Mobile No. | Email ID                      |
+    | ------------------ | ---------- | ----------------------------- |
+    | Saurav Panda       | 9167388937 | sauravgopinathpanda@gmail.com |
+    | Tanvi Rajadhyaksha | 9769919313 | rajadhyakshatanvi@gmail.com   |
+
     
-    1. Saurav Panda, 9167388937, sauravgopinathpanda@gmail.com
-    2. Tanvi Rajadhyaksha, 9769919313, rajadhyakshatanvi@gmail.com
 
-5. Problem Description
+    1. Problem Description
 
     Back Ground: A corporate action is an event initiated by a public company that will bring an actual
     change to the securities—equity or debt—issued by the company. Corporate actions are typically agreed
