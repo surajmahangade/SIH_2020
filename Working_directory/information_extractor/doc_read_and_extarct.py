@@ -12,20 +12,28 @@ from pdf2image import convert_from_path
 import os
 import pandas as pd
 import re
+import docx
 
 def read_pdf(pdf):
-    '''Writes pdf data into txt file'''
+    '''Writes and then reads pdf data into txt file'''
     raw = parser.from_file(pdf)
+    flag = 1
     # print(raw['content'])
-    file1 = open("output_of_pdf_read.txt","w")
+    file1 = open("pdf_output\\output_of_pdf_read.txt","w")
     try:
         file1.write(raw['content'])
     except:
-        read_pdf_by_ocr(pdf)
-    file1.close()
+        flag = 0
+    if flag==0:
+        file1.close()
+        file2 = open("pdf_output\\output_of_pdf_read.txt","r") 
+        text_file = file2.read()
+    else:
+        text_string = read_pdf_by_ocr(pdf)
+    return text_file
 
 def read_pdf_by_ocr(pdf): 
-    '''Writes image of pdfs' data into txt file'''
+    '''Writes and then reads image of pdfs' data into txt file'''
     pages = convert_from_path(pdf, 500)
     image_counter = 1
     for page in pages:
@@ -33,19 +41,30 @@ def read_pdf_by_ocr(pdf):
         page.save(filename, 'JPEG')
         image_counter = image_counter + 1
     filelimit = image_counter-1
-    outfile = "output_of_pdf_read.txt"
-    file2 = open(outfile, "a") #check append mode
+    outfile = "pdf_output\\output_of_pdf_read.txt"
+    file1 = open(outfile, "a") #check append mode
     for i in range(1, filelimit + 1): 
         filename = "page_"+str(i)+".jpg"
         text = str(((pytesseract.image_to_string(Image.open(filename)))))
         text = text.replace('-\n', '')
-        file2.write(text)
-    file2.close()
+        file1.write(text)
+    file1.close()
+    file2 = open("pdf_output\\output_of_pdf_read.txt","r") 
+    text_file = file2.read()
+    return text_file
 
-def read_text_file():
-    '''Reads pdf data from txt file'''
-    file1 = open("output_of_pdf_read.txt","r") 
-    text_file = file1.read()
+def write_docx_file(ms_doc):
+    doc = docx.Document("ms_doc")
+    all_paras = doc.paragraphs
+    len(all_paras)
+    file1 = open("doc_output\\output_of_docx_read.txt","w")
+    for para in all_paras:
+        try:
+            file1.write(para.text)
+        except UnicodeEncodeError:
+            pass
+    file2 = open("doc_output\\output_of_docx_read.txt","r") 
+    text_file = file2.read()
     return text_file
 
 def filter_spans(spans):
@@ -226,19 +245,15 @@ def connect_database():
         conn = mysql.connector.connect(host='database-1.chm9rhozwggi.us-east-1.rds.amazonaws.com',
                                         user='admin',
                                         password='SIH_2020',
-                                        database='corporate_actions')
+                                        database='pythanos_main')
+        cursor = conn.cursor()
         if conn.is_connected():
-            db_Info = conn.get_server_info()
-            print("Connected to MySQL Server version ", db_Info)
-            cursor = conn.cursor()
-            cursor.execute("create database pythanos_main;")
-            # cursor.execute('create database web_server;')
-            cursor.execute("show databases")
+            cursor.execute("show tables")
             res = cursor.fetchall()
             print("Available databases: ", res)
 
-    except Error as e:
-        print("Error while connecting to MySQL", e)
+    except:
+        print("Error while connecting to MySQL")
 
     return(conn,cursor)
 
@@ -247,10 +262,12 @@ if __name__ == "__main__":
     start_time = time.time()
     conn,cursor = connect_database()
     print(conn)
-    pdf_list = glob.glob("../next_gen/next_gen/full/*.pdf") #file path to document downloads
+    sql = "SELECT file_url FROM crawler_2"
+    cursor.execute(sql)
+    pdf_list = cursor.fetchall()
     for pdf in pdf_list:
-        read_pdf(pdf)
-        text_string = read_text_file()
+        
+        text_string = read_pdf(pdf)
         scrip_code = get_scrip(text_string)
         # trading_symbol = get_trading_symbol(text_string)
 
