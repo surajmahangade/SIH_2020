@@ -113,7 +113,7 @@ continuously learn about sources which could be trusted for specific information
 
 11. **Input samples supported by system**
 
-    - registration page
+    - Scraped Articles, PDFs, links
 
 # Design
 
@@ -204,45 +204,20 @@ continuously learn about sources which could be trusted for specific information
     
     - ***Links of data processed and the extent***
     
-      ```
-      ["moneycontrol1", "https://www.moneycontrol.com/news/business", "15"],
-      #    ["newindianexpress", "https://www.newindianexpress.com/business", "15"],
-      #    ["timesnownews", "https://www.timesnownews.com/business-economy/companies", "12"],
-      #    ["capitalmarket2", "http://www.capitalmarket.com", "5"],
-      #    ["economictimes", "https://www.economictimes.indiatimes.com", "10"],
-      #    ["livemint1", "https://www.livemint.com/companies/news", "15"],
-      #    ["businessinsider1", "https://www.businessinsider.in/business/news", "15"],
-      #    ["stockinforce", "https://www.stockinforce.com", "5"],
-      #    ["hindustantimes1", "https://www.hindustantimes.com/business-news", "15"],#
-      #    ["thehindubusinessline1", "https://www.thehindubusinessline.com/companies/announcements", "15"],
-      #    ["thehindubusinessline2", "https://www.thehindubusinessline.com", "5"],
-      #    ["gadgetsnow1", "https://www.gadgetsnow.com/latest-news", "15"],
-      #    ["thenewsminute1", "https://www.thenewsminute.com/section/News", "15"],
-      #    ["outlookindia1", "https://www.outlookindia.com/newsscroll", "15"],
-      #    ["business-standard1", "https://www.business-standard.com/sector/display-article/Financials", "25"],
-      #    ["business-standard2", "https://www.business-standard.com/markets-news", "25"],
-      #    ["businesstoday", "https://www.businesstoday.in/current/corporate", "15"],
-      #    ["newskube", "https://www.newskube.com", "5"],
-      #    ["moneycontrol2", "https://www.moneycontrol.com/news/business/markets", "30"],
-      #    ["moneycontrol3", "https://www.moneycontrol.com", "5"],
-      #    ["republicworld4", "https://www.republicworld.com/business-news", "10"],
-      #    ["republicworld5", "https://www.republicworld.com", "5"],
-      #    ["ndtv1", "https://www.ndtv.com/business", "10"],
-      #    ["ndtv2", "https://www.ndtv.com", "5"],
-      #    ["ndtv3", "https://www.ndtv.com/business/corporates", "10"],
-      #    ["firstpost1", "https://www.firstpost.com/category/business", "10"],
-      #    ["businessworld1", "http://www.businessworld.in", "5"],
-      #    ["businessworld2", "http://www.businessworld.in/business-news", "10"],
-      #    ["equitybulls", "http://www.equitybulls.com", "5"],
-      #    ["newsjournals", "https://www.newsjournals.in", "5"],
-      #    ["bloombergquint1", "https://www.bloombergquint.com/business", "10"],
-      #    ["businesstimes1", "https://www.businesstimes.com.sg/keywords/agm", "30"],
-      #    ["financialexpress1", "https://www.financialexpress.com/industry", "30"],
-      #    ["bing", "https://www.bing.com/search?q=agm", "10"],
-          ["moneycontrol11","https://www.mmb.moneycontrol.com/forum-topics/market-view-4.html","10"]
-      ​```
-      ```
-    
+```
+Google News Finance - https://www.google.com/finance
+CNBC – https://www.cnbc.com/world/?region=world 
+Economic Times – https://economictimes.indiatimes.com/
+Business standard – https://www.business-standard.com/
+Yahoo Finance – https://in.finance.yahoo.com/
+Reuters – https://in.reuters.com/finance
+Financial Express – https://www.financialexpress.com/
+Capital Markets – http://www.capitalmarket.com/
+Live Mint – https://www.livemint.com/latest-news
+Market Watch – https://www.marketwatch.com/
+Stock News – https://stocknews.com/top-stories/
+Bloomberg – https://www.bloomberg.com/global
+```
       
 
 20. Corporate Action scope covered
