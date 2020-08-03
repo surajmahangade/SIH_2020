@@ -147,7 +147,6 @@ dependencies:
   - zipp=3.1.0=py_0
   - zlib=1.2.11=h7b6447c_3
   - pip:
-    - en-core-web-lg==2.3.1
     - mysql-connector-python-rf==2.2.2
     - networkx==2.4
     - pdfminer==20191125
