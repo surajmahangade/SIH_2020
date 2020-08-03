@@ -68,6 +68,6 @@ if len(failed) > 0:
     print("[FAILED]", len(failed), "package(s) were not installed. Failed package install(s):", end=" ")
     for x, package in enumerate(failed):
         if x != len(failed) -1:
-            print(package, end=",")
+            print(package, end=" ")
         else:
             print(package)
