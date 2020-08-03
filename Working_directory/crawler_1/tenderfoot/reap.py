@@ -3,9 +3,6 @@
 This module is the initial ranker for the CA scraping bot.
 """
 
-__version__ = '1'
-__author__ = 'Abhijit Acharya'
-
 import mysql.connector
 
 error_string = """
@@ -27,8 +24,10 @@ class text_color:
 class Reaper(object):
     """Reaper class ranks the links"""
 
-    def __init__(self, iterations):
+    def __init__(self, iterations,connection,cursor):
         self.iterations = iterations
+        self.connection = connection
+        self.cursor = cursor
         print(text_color.HEADER_COLOR
               + "Initialized Reaper object"
               + text_color.ENDC)
@@ -44,7 +43,6 @@ class Reaper(object):
                      database="pythanos_main"
                    )
 
-            # self.connection = sqlite3.connect('output/tenderfoot.sqlite')
             self.cursor = self.connection.cursor(buffered=True)
             print(text_color.GREEN_COLOR + "Database connected" + text_color.ENDC)
         except Exception as ex:
@@ -54,8 +52,6 @@ class Reaper(object):
     def get_fromids(self):
         try:
             print(text_color.WARNING_COLOR + "Getting from ids" + text_color.ENDC)
-            # Find the ids that send out page rank - we only are interested
-            # in pages in the SCC that have in and out links
             self.cursor.execute('''SELECT DISTINCT from_id FROM links''')
             self.from_ids = list()
             for row in self.cursor:
@@ -103,7 +99,6 @@ class Reaper(object):
     # calculate new ranks in memory rather than saving it in db to speed up execution
     def calculate_new_ranks(self):
         try:
-            # sval = input('How many iterations:')
             sval = self.iterations
             many = 1
             if (len(sval) > 0):
@@ -114,7 +109,6 @@ class Reaper(object):
                 print(text_color.FAILED_COLOR
                       + "Nothing to reap. Check your data."
                       + text_color.ENDC)
-                # quit()
                 return
 
             # Page Rank loop
@@ -153,8 +147,6 @@ class Reaper(object):
                 for (node, next_rank) in list(self.next_ranks.items()):
                     newtot = newtot + next_rank
 
-                # Compute the per-page average change from old rank to new rank
-                # As indication of convergence of the algorithm
                 total_difference = 0
                 for (node, old_rank) in list(self.prev_ranks.items()):
                     new_rank = self.next_ranks[node]
@@ -187,10 +179,8 @@ class Reaper(object):
             print(text_color.FAILED_COLOR + error_string.format(ex) + text_color.ENDC)
 
     def reap(self):
-        self.connect_database()
         self.get_fromids()
         self.get_toids()
         self.get_page_ranks()
         self.calculate_new_ranks()
         self.update_new_ranks()
-        self.close_cur()

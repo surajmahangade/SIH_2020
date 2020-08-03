@@ -25,9 +25,6 @@ def deadpan_and_hollow(i,max_rank):
     deadpan = Deadpan(i[0],i[1],round(int(i[2])*100/max_rank))
     deadpan.spider()
 
-# for i in init_web_list:
-#     deadpan_and_hollow(i,100)
-
 while True:
     # Connect to database
     connection = sqlite3.connect('output/tenderfoot.sqlite')
