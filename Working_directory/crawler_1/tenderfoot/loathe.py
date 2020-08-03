@@ -3,12 +3,12 @@
 This module is the final ranker for the CA scraping bot.
 """
 
-__version__ = '4'
-__author__ = 'Abhijit Acharya'
-
 import sys
+import time
+import sqlite3
+import numpy as np
 import mysql.connector
-from datetime import datetime
+from collections import Counter
 
 error_string = """
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n
@@ -31,7 +31,9 @@ class text_color:
 class Loathe(object):
     """Loathe class ranks the urls"""
 
-    def __init__(self):
+    def __init__(self,connection,cursor):
+        self.cursor = cursor
+        self.connection = connection
         print(text_color.HEADER_COLOR
               + "Initialized loathe object"
               + text_color.ENDC)
@@ -47,7 +49,6 @@ class Loathe(object):
                      database="pythanos_main"
                    )
 
-            # self.connection = sqlite3.connect('output/tenderfoot.sqlite')
             self.cursor = self.connection.cursor(buffered=True)
             print(text_color.GREEN_COLOR
                   + "Connected to database"
@@ -58,42 +59,20 @@ class Loathe(object):
                   + text_color.ENDC)
             sys.exit(0)
 
-    # # Load models
-    # def load_models(self):
-    #     try:
-    #         self.model = load_model('models/best_model.h5')
-    #     except Exception as ex:
-    #         print(text_color.FAILED_COLOR
-    #               + error_string.format(ex)
-    #               + text_color.ENDC)
 
-    # loop over articles and rank
-    def loop_over_articles_and_rank(self):
+    # loop over articles and classify
+    def loop_over_articles_and_classify(self):
+        tokenizer = Tokenizer()
         try:
             while True:
-                self.cursor.execute('SELECT articles.id,articles.url,articles.publish_date,pages.filename,pages.website,pages.new_rank FROM articles INNER JOIN pages ON articles.id=pages.pages_id WHERE articles.content is NOT NULL and articles.error is NULL LIMIT 1')
+                self.cursor.execute('SELECT articles.id,articles.url,articles.content,pages.new_rank FROM articles INNER JOIN pages ON articles.id=pages.pages_id WHERE articles.content is NOT NULL and articles.ranks is NULL and articles.error is NULL ORDER BY pages.new_rank LIMIT 1')
                 row = self.cursor.fetchone()
-                print(row[1])
-                self.cursor.execute('SELECT name,web_rank FROM webs WHERE name=%s LIMIT 1', (row[4],))
-                webs = self.cursor.fetchone()
-                print("HERE")
-                website_name = webs[0]
-                web_rank = webs[1]
-                if row[2] != None:
-                    old_date = datetime.strptime(row[2], '%Y-%m-%d %H:%M:%S')
-                    with open('output/dumps/'+row[3],'r', encoding='utf-8') as f:
-                        try:
-                            html_str = f.read()
-                            article.download(html_str)
-                            article.parse()
-                            new_date = datetime.strptime(article.publish_date, '%Y-%m-%d %H:%M:%S')
-                            if old_date != new_date:
-                                self.cursor.execute('UPDATE webs SET web_rank=%s WHERE website=%s', (int(web_rank)-0.3, website_name))
-                        except Exception as ex:
-                            print(ex)
-                        finally:
-                            f.close()
-
+                streeng = [[row[2]]]
+                tokenizer.fit_on_texts(list(streeng))
+                x_tr_seq = tokenizer.texts_to_sequences(streeng)
+                x_tr_seq = pad_sequences(x_tr_seq, maxlen=100)
+                new_rank_value = self.model.predict_proba(x_tr_seq)[0][0]
+                self.cursor.execute('UPDATE articles SET ranks=%s WHERE url=%s', (float(new_rank_value),row[1]) )
         except Exception as ex:
             self.connection.commit()
             print(text_color.FAILED_COLOR + error_string.format(ex) + text_color.ENDC)
@@ -107,7 +86,5 @@ class Loathe(object):
             print(text_color.FAILED_COLOR + error_string.format(ex) + text_color.ENDC)
 
     def loathe(self):
-        self.connect_database()
-        # self.load_models()
-        self.loop_over_articles_and_rank()
-        self.close_cur()
+        self.load_models()
+        self.loop_over_articles_and_classify()

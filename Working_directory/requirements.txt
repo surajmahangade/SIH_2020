@@ -58,3 +58,4 @@ pdf2image
 glob
 docx
 python-docx
+datefinder
