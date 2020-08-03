@@ -113,13 +113,14 @@ continuously learn about sources which could be trusted for specific information
 
 11. **Input samples supported by system**
 
-    - Scraped Articles, PDFs, links
+    - registration page
+    ![Selection_066](./README/login.png)
 
 # Design
 
 13. **Architecture Diagram:**
 
-![Selection_066](/home/ritoo/Pictures/Selection_066.png)
+![Selection_066](./README/pythanos_process_flow_diagram.png)
 
 14. **Different data flows / pipelines:**
 
@@ -132,12 +133,11 @@ continuously learn about sources which could be trusted for specific information
 
 16. **Data Scheme:**
 
-    - Articles Table:![image-20200803142442790](/home/ritoo/.config/Typora/typora-user-images/image-20200803142442790.png)
-
-    - Company Table:![company_table](/home/ritoo/Desktop/git images/company_table.png)
-    - Corporate Actions Table:![corporate_actions](/home/ritoo/Desktop/git images/corporate_actions.png)
-    - Company Data Crawler:![crawler_2](/home/ritoo/Desktop/git images/crawler_2.png)
-    - Dashboard Securities:![dashboard_securities](/home/ritoo/Desktop/git images/dashboard_securities.png)
+    - Articles Table:![image-20200803142442790](./README/article_tables.png)
+    - Company Table:![company_table](./README/company_table.png)
+    - Corporate Actions Table:![corporate_actions](./README/corporate_actions.png)
+    - Company Data Crawler:![crawler_2](./README/crawler_2.png)
+    - Dashboard Securities:![dashboard_securities](./READMEdashboard_securities.png)
 
 17. **Algorithms Used:**
 
@@ -270,5 +270,12 @@ Bloomberg – https://www.bloomberg.com/global
       - RESTful API
       - Effective Data Cleansing
 
-      
+  21. Implementation Details
 
+* Trust Index:
+![Selection_066](./README/pythanos_process_flow_diagram.png)  
+
+* Report Generation:
+![Selection_066](./README/report_gen.png)  
+* CA Page:
+![Selection_066](./README/CA.png)  
