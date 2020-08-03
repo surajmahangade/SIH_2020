@@ -64,30 +64,236 @@ continuously learn about sources which could be trusted for specific information
 
 6. **Technology stack**
 
+   | Tool                              | URL(References)                                              | Purpose for usage |
+   | --------------------------------- | ------------------------------------------------------------ | ----------------- |
+   | Amazon Web Services               | - EC2 https://aws.amazon.com/ec2/ <br />- RDShttps://aws.amazon.com/rds/ | - EC2<br />- RDS  |
+   | MySQL                             | https://dev.mysql.com/doc/                                   |                   |
+   | Django                            | https://docs.djangoproject.com/en/3.0/                       |                   |
+   | Scikit Learn                      | https://scikit-learn.org/stable/user_guide.html              |                   |
+   | Tensorflow                        | https://www.tensorflow.org/                                  |                   |
+   | Webanno                           | https://github.com/webanno/webanno/                          |                   |
+   | Apache                            | https://httpd.apache.org/docs/                               |                   |
+   | RESTful API Django REST Framework |                                                              |                   |
+   | Universal Google Encoder          | https://ai.googleblog.com/2019/07/multilingual-universal-sentence-encoder.html |                   |
+   | Spacy                             | https://spacy.io/api/doc                                     |                   |
+   | Scrapy                            | https://docs.scrapy.org/en/latest/                           |                   |
+   | Pandas                            | https://pandas.pydata.org/pandas-docs/stable/                |                   |
+   | Keras                             | https://keras.io/api/                                        |                   |
+   | Reportlab                         | https://www.reportlab.com/dev/docs/                          |                   |
+   | Pytesseract                       | https://readthedocs.org/projects/pytesseract/                |                   |
+   | Beautifulsoup                     | https://www.crummy.com/software/BeautifulSoup/               |                   |
+   | CSS                               | https://developer.mozilla.org/en-US/docs/Web/CSS             |                   |
+   | HTML5                             | https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5 |                   |
+   | Javascript                        | https://developer.mozilla.org/en-US/docs/Web/javascript      |                   |
+   | Bootstrap4                        | https://getbootstrap.com/docs/4.0/getting-started/introduction |                   |
+   | NLTK                              |                                                              |                   |
+   | Tika                              |                                                              |                   |
+   | Pdf2image                         |                                                              |                   |
+   | Docx                              |                                                              |                   |
+
+   
+
+7. **Project hosting details:**
+
+   Hosted on EC2 instance t2.medium 4GB RAM, 2 Virtual CPUs
+
+   Find the website [here](http://3.237.8.100/)
+
+8. **Source code URL**
+
+   Our git repository is [here](https://github.com/prathameshn99/SM445_PYTHANOS)
+
+9. **Project building instruction**
+
+   Find the commands here
+
+10. **Installation instruction**
+
+    - Installation requirements: Run [this](https://github.com/prathameshn99/SM445_PYTHANOS/blob/master/Working_directory/install_requirements.py) script to install all requirements necessary to run the system
+
+11. **Input samples supported by system**
+
+    - registration page
+
 # Design
 
 13. **Architecture Diagram:**
 
-![process flow diagram](./README/pythanos_process_flow_diagram.png)
+![Selection_066](/home/ritoo/Pictures/Selection_066.png)
 
 14. **Different data flows / pipelines:**
 
+    
+
 15. **AI /ML models used:**
+
+    - Google Encoder
+    -  NLTK (Name Entity Recognition using Spacy: en-web-lg)
+
 16. **Data Scheme:**
+
+    - Articles Table:![image-20200803142442790](/home/ritoo/.config/Typora/typora-user-images/image-20200803142442790.png)
+
+    - Company Table:![company_table](/home/ritoo/Desktop/git images/company_table.png)
+    - Corporate Actions Table:![corporate_actions](/home/ritoo/Desktop/git images/corporate_actions.png)
+    - Company Data Crawler:![crawler_2](/home/ritoo/Desktop/git images/crawler_2.png)
+    - Dashboard Securities:![dashboard_securities](/home/ritoo/Desktop/git images/dashboard_securities.png)
+
 17. **Algorithms Used:**
+
+    - Weighted Average
+
+    - Page Rank 
+
+      
 
 # Current Progress
 
 18. **Data Source for corporate actions (CA)**
-    - Whether configurable:
-    - Source specific support?
-    - Intelligent crawling:
-    - Type of data gathered
-    - Types of Documents supported
-    - Schedule structure of data collection:
-    - Technology/Tool used
+    - ***What all is configurable***
+
+      List of securities to be crawled, User Roles, Exception Table, Weighted Ranking system
+
+    - ***Source specific support?***
+
+      News sources such as ____ form the base of the information extraction system
+
+    - ***Intelligent crawling***
+
+      The system incorporates a weighted average algorithm, which ensure the sites are trusted based on how frequently they provide the correct information
+
+    - ***Type of data gathered***
+
+      As shown in few of the tables above, the following data types is extracted from links and pdfs:
+
+      - Free text, Tabular, Images, PDFs
+
+    - ***Types of Documents supported***
+
+      PDF, Images, CSV, HTML
+
+    - ***Schedule structure of data collection:***
+
+      The data is collected in two stages, News Crawler is Real time and Company Data crawler is Scheduled based on inputs from previous stages
+
+    - ***Technology/Tool used***
+
+      - Scrapy, Requests, newspaper3k parser, Selenium
 19. **Data Extraction**
-    - Method of Data Extraction
-    - Data points Extraction capability of system
-    - Types of documents successfully processed
-    - Links of data processed and the extent
+    - ***Method of Data Extraction***
+    
+      Initially, the system starts scraping few trusted set of websites based on historical data
+    
+      The links obtained are further used to crawl more sites
+    
+      The HTML pages are parsed to extract the historic data
+    
+      ***Data points Extraction capability of system***
+    
+      The system relies on set of feedback that comes from Intelligent Identifier and Self Regulating crawler
+    
+      The crawler is guided by these feedbacks that are combined using weighted avg algorithm
+    
+      The News Crawler is capable of scraping 1 link/second, and can extract
+    
+      The crawler supports various languages(due to Universal Google Encoder) throughout the world to gather information to have a global scope.
+    
+    - ***Types of documents successfully processed***
+    
+      PDF, Images, CSV, HTML
+    
+    - ***Links of data processed and the extent***
+    
+      ```
+      ["moneycontrol1", "https://www.moneycontrol.com/news/business", "15"],
+      #    ["newindianexpress", "https://www.newindianexpress.com/business", "15"],
+      #    ["timesnownews", "https://www.timesnownews.com/business-economy/companies", "12"],
+      #    ["capitalmarket2", "http://www.capitalmarket.com", "5"],
+      #    ["economictimes", "https://www.economictimes.indiatimes.com", "10"],
+      #    ["livemint1", "https://www.livemint.com/companies/news", "15"],
+      #    ["businessinsider1", "https://www.businessinsider.in/business/news", "15"],
+      #    ["stockinforce", "https://www.stockinforce.com", "5"],
+      #    ["hindustantimes1", "https://www.hindustantimes.com/business-news", "15"],#
+      #    ["thehindubusinessline1", "https://www.thehindubusinessline.com/companies/announcements", "15"],
+      #    ["thehindubusinessline2", "https://www.thehindubusinessline.com", "5"],
+      #    ["gadgetsnow1", "https://www.gadgetsnow.com/latest-news", "15"],
+      #    ["thenewsminute1", "https://www.thenewsminute.com/section/News", "15"],
+      #    ["outlookindia1", "https://www.outlookindia.com/newsscroll", "15"],
+      #    ["business-standard1", "https://www.business-standard.com/sector/display-article/Financials", "25"],
+      #    ["business-standard2", "https://www.business-standard.com/markets-news", "25"],
+      #    ["businesstoday", "https://www.businesstoday.in/current/corporate", "15"],
+      #    ["newskube", "https://www.newskube.com", "5"],
+      #    ["moneycontrol2", "https://www.moneycontrol.com/news/business/markets", "30"],
+      #    ["moneycontrol3", "https://www.moneycontrol.com", "5"],
+      #    ["republicworld4", "https://www.republicworld.com/business-news", "10"],
+      #    ["republicworld5", "https://www.republicworld.com", "5"],
+      #    ["ndtv1", "https://www.ndtv.com/business", "10"],
+      #    ["ndtv2", "https://www.ndtv.com", "5"],
+      #    ["ndtv3", "https://www.ndtv.com/business/corporates", "10"],
+      #    ["firstpost1", "https://www.firstpost.com/category/business", "10"],
+      #    ["businessworld1", "http://www.businessworld.in", "5"],
+      #    ["businessworld2", "http://www.businessworld.in/business-news", "10"],
+      #    ["equitybulls", "http://www.equitybulls.com", "5"],
+      #    ["newsjournals", "https://www.newsjournals.in", "5"],
+      #    ["bloombergquint1", "https://www.bloombergquint.com/business", "10"],
+      #    ["businesstimes1", "https://www.businesstimes.com.sg/keywords/agm", "30"],
+      #    ["financialexpress1", "https://www.financialexpress.com/industry", "30"],
+      #    ["bing", "https://www.bing.com/search?q=agm", "10"],
+          ["moneycontrol11","https://www.mmb.moneycontrol.com/forum-topics/market-view-4.html","10"]
+      ​```
+      ```
+    
+      
+
+20. Corporate Action scope covered
+
+    - ***CA types supported***
+
+      Dividends(Interim, Final, Quarterly,Special Interim,  Cash), Rights Issue, Bonus Issue,Scrip Dividend,Merger
+
+    - ***Financial market supported***
+
+    - ***Historic/ Current***
+
+    - ***Workflow supported***
+
+      - New announcement of CA
+      - Modifications
+      - Cancellations
+      - Market talks of CA before announcements
+      - Do 	system compliment / merge data from various sources to make it 	complete
+
+    - ***Quality of Data***
+
+      - How it is determined
+      - How conflicting Information on the web is handled
+      - Technology/Tool/Algorithms used for quality of data
+
+    - ***Usability***
+
+      - Type of application
+      - Actions user can perform with this system
+      - GUI for application
+      - Input to system and its corresponding output
+      - User overrides/ customisation possibilities
+      - Technology/Tool used
+
+    - ***Other Features/ USP***
+
+      - Logic Converter
+      - Global Scope
+      - Manual Override
+
+    - ***Wow factor of the project***
+
+      - Scalable Architecture
+      - Named Entity Recognition in addition to Regex
+      - Cost Effective performance
+      - Dividend Accuracy
+      - User Friendly UI
+      - User Roles(Under Progress)
+      - RESTful API
+      - Effective Data Cleansing
+
+      
+
