@@ -64,32 +64,32 @@ continuously learn about sources which could be trusted for specific information
 
 6. **Technology stack**
 
-   | Tool                              | URL(References)                                              | Purpose for usage |
-   | --------------------------------- | ------------------------------------------------------------ | ----------------- |
-   | Amazon Web Services               | - EC2 https://aws.amazon.com/ec2/ <br />- RDShttps://aws.amazon.com/rds/ | - EC2<br />- RDS  |
-   | MySQL                             | https://dev.mysql.com/doc/                                   |                   |
-   | Django                            | https://docs.djangoproject.com/en/3.0/                       |                   |
-   | Scikit Learn                      | https://scikit-learn.org/stable/user_guide.html              |                   |
-   | Tensorflow                        | https://www.tensorflow.org/                                  |                   |
-   | Webanno                           | https://github.com/webanno/webanno/                          |                   |
-   | Apache                            | https://httpd.apache.org/docs/                               |                   |
-   | RESTful API Django REST Framework |                                                              |                   |
-   | Universal Google Encoder          | https://ai.googleblog.com/2019/07/multilingual-universal-sentence-encoder.html |                   |
-   | Spacy                             | https://spacy.io/api/doc                                     |                   |
-   | Scrapy                            | https://docs.scrapy.org/en/latest/                           |                   |
-   | Pandas                            | https://pandas.pydata.org/pandas-docs/stable/                |                   |
-   | Keras                             | https://keras.io/api/                                        |                   |
-   | Reportlab                         | https://www.reportlab.com/dev/docs/                          |                   |
-   | Pytesseract                       | https://readthedocs.org/projects/pytesseract/                |                   |
-   | Beautifulsoup                     | https://www.crummy.com/software/BeautifulSoup/               |                   |
-   | CSS                               | https://developer.mozilla.org/en-US/docs/Web/CSS             |                   |
-   | HTML5                             | https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5 |                   |
-   | Javascript                        | https://developer.mozilla.org/en-US/docs/Web/javascript      |                   |
-   | Bootstrap4                        | https://getbootstrap.com/docs/4.0/getting-started/introduction |                   |
-   | NLTK                              |                                                              |                   |
-   | Tika                              |                                                              |                   |
-   | Pdf2image                         |                                                              |                   |
-   | Docx                              |                                                              |                   |
+   | Tool                              | URL(References)                                              | Purpose for usage                                            |
+   | --------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+   | Amazon Web Services               | - EC2 https://aws.amazon.com/ec2/ <br />- RDShttps://aws.amazon.com/rds/ | - EC2<br />Servers for django backend and scraper- RDS Relational Database |
+   | MySQL                             | https://dev.mysql.com/doc/                                   | to create tables                                             |
+   | Django                            | https://docs.djangoproject.com/en/3.0/                       | Python Framework for website                                 |
+   | Scikit Learn                      | https://scikit-learn.org/stable/user_guide.html              | Initially used for fuzzy Logic                               |
+   | Tensorflow                        | https://www.tensorflow.org/                                  | Machine Learning                                             |
+   | Webanno                           | https://github.com/webanno/webanno/                          | Annotation of data for training the model                    |
+   | Apache                            | https://httpd.apache.org/docs/                               | Hosting Website                                              |
+   | RESTful API Django REST Framework |                                                              | Framework Connecting microservices and provides API to the FIS Global server |
+   | Universal Google Encoder          | https://ai.googleblog.com/2019/07/multilingual-universal-sentence-encoder.html | The Universal Sentence **Encoder** encodes text into high-dimensional vectors that can be used for text classification, semantic similarity, clustering and other natural language tasks. |
+   | Spacy                             | https://spacy.io/api/doc                                     | Used for Name Entity Recognition                             |
+   | Scrapy                            | https://docs.scrapy.org/en/latest/                           | scraper module for crawler 2                                 |
+   | Pandas                            | https://pandas.pydata.org/pandas-docs/stable/                | Data Processing                                              |
+   | Keras                             | https://keras.io/api/                                        | neural network library                                       |
+   | Reportlab                         | https://www.reportlab.com/dev/docs/                          | to generate automated PDFs from texts                        |
+   | Pytesseract                       | https://readthedocs.org/projects/pytesseract/                | For ocr of image pdfs                                        |
+   | Beautifulsoup                     | https://www.crummy.com/software/BeautifulSoup/               | html parser                                                  |
+   | CSS                               | https://developer.mozilla.org/en-US/docs/Web/CSS             | to beautify the Website                                      |
+   | HTML5                             | https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5 | To make templates for the website                            |
+   | Javascript                        | https://developer.mozilla.org/en-US/docs/Web/javascript      | To make the webpages dynamic and incorporates responsiveness |
+   | Bootstrap4                        | https://getbootstrap.com/docs/4.0/getting-started/introduction | CSS framework                                                |
+   | NLTK                              | https://www.nltk.org/                                        | The Natural Language Toolkit (**NLTK**) is a platform **used** for building Python programs that work with human language data for applying in statistical natural language processing (NLP) |
+   | Tika                              | https://pypi.org/project/tika-app/                           | A **Python** port of the Apache                              |
+   | Re                                |                                                              | For string Matching                                          |
+   | Docx                              |                                                              | to read MS Word                                              |
 
    
 
@@ -137,7 +137,7 @@ continuously learn about sources which could be trusted for specific information
     - Company Table:![company_table](./README/company_table.png)
     - Corporate Actions Table:![corporate_actions](./README/corporate_actions.png)
     - Company Data Crawler:![crawler_2](./README/crawler_2.png)
-    - Dashboard Securities:![dashboard_securities](./READMEdashboard_securities.png)
+    - Dashboard Securities:![dashboard_securities](./README/dashboard_securities.png)
 
 17. **Algorithms Used:**
 
@@ -218,7 +218,7 @@ Market Watch – https://www.marketwatch.com/
 Stock News – https://stocknews.com/top-stories/
 Bloomberg – https://www.bloomberg.com/global
 ```
-      
+
 
 20. Corporate Action scope covered
 
@@ -228,29 +228,60 @@ Bloomberg – https://www.bloomberg.com/global
 
     - ***Financial market supported***
 
+      Indian and partly global
+
     - ***Historic/ Current***
+
+      The system is capable of both
 
     - ***Workflow supported***
 
       - New announcement of CA
+
+        Yes
+
       - Modifications
+
+        Yes
+
       - Cancellations
+
+        No
+
       - Market talks of CA before announcements
+
+        Yes
+
       - Do 	system compliment / merge data from various sources to make it 	complete
+
+        Partially
 
     - ***Quality of Data***
 
       - How it is determined
+
       - How conflicting Information on the web is handled
+
+        Data from multiple sources is compared and checked for review(In progress)
+
       - Technology/Tool/Algorithms used for quality of data
+
+        Name Entity Recognition 
 
     - ***Usability***
 
       - Type of application
+
+        Website
+
       - Actions user can perform with this system
-      - GUI for application
+
+        Admin Panel within all the CA tables
+
       - Input to system and its corresponding output
+
       - User overrides/ customisation possibilities
+
       - Technology/Tool used
 
     - ***Other Features/ USP***
@@ -272,10 +303,7 @@ Bloomberg – https://www.bloomberg.com/global
 
   21. Implementation Details
 
-* Trust Index:
-![Selection_066](./README/pythanos_process_flow_diagram.png)  
-
-* Report Generation:
+* Report Generation{GUI of Application}
 ![Selection_066](./README/report_gen.png)  
 * CA Page:
 ![Selection_066](./README/CA.png)  
