@@ -5,6 +5,7 @@ from .forms import UserRegistrationForm
 from django.contrib.auth.decorators import login_required,permission_required
 from dashboard.models import file_download,corp_action_data,articles,company, dashboard,errors, historic_data, links, pages, securities,links 
 import mysql.connector 
+from django.db.models import Count 
 
 import io
 import ast
@@ -39,12 +40,25 @@ def index (request):
 @login_required
 def report(request):
     #future expected page
-    data = articles.objects.filter(news_checked__gt = 1)
+    data = articles.objects.filter(news_checked__gt = 0)
     print (type (data))
     content = {
         'data':data
     }
     return render (request, 'report.html',content)
+
+@login_required
+def dash_web(request):
+    data = corp_action_data.objects.values('ca_type').order_by().annotate(ann=Count('ca_type'))
+    for d in data:
+        print(d)
+    
+    
+    content = {
+        'data':data
+    }
+
+    return render(request,'dashboard.html',content)
 
 @login_required
 def rep_generatoion(request):
@@ -53,6 +67,15 @@ def rep_generatoion(request):
         'data':data
     }
     return render (request, 'gen.html', content) 
+
+
+@login_required
+def sec_master(request):
+    data = corp_action_data.objects.all()[:100]
+    content = {
+        'data':data
+    }
+    return render (request, 'secmast.html', content) 
 
 
 
