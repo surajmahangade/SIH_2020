@@ -58,4 +58,5 @@ pdf2image
 glob
 docx
 python-docx
-
+Pillow==2.2.2
+glob2==0.4.1
