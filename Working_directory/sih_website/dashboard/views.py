@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from .forms import UserRegistrationForm
 from django.contrib.auth.decorators import login_required,permission_required
-from dashboard.models import file_download,corp_action_data,articles,company, dashboard,errors, historic_data, links, pages, securities,links 
+from dashboard.models import file_download,corp_action_data,articles,company, dashboard,errors, historic_data, links, pages, securities,links, webs 
 import mysql.connector 
 from django.db.models import Count 
 
@@ -171,6 +171,13 @@ def pdf_downloader(request):
     # pass
 
 
+@login_required
+def trust_ranking(request):
+    data = webs.objects.all()[:]
+    content = {
+        'data':data
+    }
+    return render (request, 'trust_ranking.html', content) 
 
 
 
