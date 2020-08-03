@@ -14,7 +14,6 @@ import pandas as pd
 import re
 import docx
 import mysql.connector
-import mysql
 import ssl
 import requests
 
@@ -279,9 +278,9 @@ def pdf_load(conn,cursor):
                         fd.write(chunk)
                         
                 print(link)
-                text_string = read_pdf("data.pdf")]
+                text_string = read_pdf("data.pdf")
                 
-                print("------------------------------")]
+                print("------------------------------")
                 
                 cursor.execute("UPDATE dashboard_file_download SET ca_extracted=1 WHERE url_of_file=%s" ,(link,))
 
@@ -333,7 +332,6 @@ def pdf_load(conn,cursor):
                     %s,
                     %s , 
                     %s ,
-                    %s,
                     %s,
                     %s,
                     %s) """
@@ -391,7 +389,7 @@ def pdf_load(conn,cursor):
                     %s,
                     %s,
                     %s,
-                    %s) """
+                    %s)"""
                     values = (date_ca , company_name, ca_name , security_id_type, ex_date , rec_date , pay_date , remarks, scrip_code, link )
                 cursor.execute(sql,values)
                 conn.commit()
