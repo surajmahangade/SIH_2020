@@ -13,24 +13,34 @@ import os
 import pandas as pd
 import re
 import docx
+import mysql.connector
+import mysql
+import ssl
+import requests
+
 
 def read_pdf(pdf):
     '''Writes and then reads pdf data into txt file'''
     raw = parser.from_file(pdf)
     flag = 1
     # print(raw['content'])
-    file1 = open("pdf_output\\output_of_pdf_read.txt","w")
+    
+    file1 = open("output_of_pdf_read.txt","w")
+    
     try:
         file1.write(raw['content'])
+        # print(raw['content'])
     except:
         flag = 0
-    if flag==0:
+    if flag==1:
         file1.close()
-        file2 = open("pdf_output\\output_of_pdf_read.txt","r") 
-        text_file = file2.read()
+        file2 = open("output_of_pdf_read.txt","r") 
+        text_string = file2.read()
     else:
+        text_string = ""
         text_string = read_pdf_by_ocr(pdf)
-    return text_file
+    return text_string
+
 
 def read_pdf_by_ocr(pdf): 
     '''Writes and then reads image of pdfs' data into txt file'''
@@ -45,13 +55,14 @@ def read_pdf_by_ocr(pdf):
     file1 = open(outfile, "a") #check append mode
     for i in range(1, filelimit + 1): 
         filename = "page_"+str(i)+".jpg"
-        text = str(((pytesseract.image_to_string(Image.open(filename)))))
+        text = str((pytesseract.image_to_string(Image.open(filename))))
         text = text.replace('-\n', '')
         file1.write(text)
     file1.close()
     file2 = open("pdf_output\\output_of_pdf_read.txt","r") 
     text_file = file2.read()
     return text_file
+
 
 def write_docx_file(ms_doc):
     doc = docx.Document("ms_doc")
@@ -67,6 +78,7 @@ def write_docx_file(ms_doc):
     text_file = file2.read()
     return text_file
 
+
 def filter_spans(spans):
     # Spacy fn to filter a sequence of spans so they don't contain overlaps
     get_sort_key = lambda span: (span.end - span.start, -span.start)
@@ -80,6 +92,7 @@ def filter_spans(spans):
         seen_tokens.update(range(span.start, span.end))
     result = sorted(result, key=lambda span: span.start)
     return result
+
 
 def extract_currency_relations(doc):
     # Merge entities and noun chunks into one token
@@ -99,6 +112,7 @@ def extract_currency_relations(doc):
             relations.append((money.head.head, money))
     return relations
 
+
 def currencies():
     '''NLP for entity extraction
     Complete usage to be done soon'''
@@ -108,6 +122,7 @@ def currencies():
     relations = extract_currency_relations(doc)
     extracted_entities = [(i.text_string, i.label_) for i in doc.ents]
     print(extracted_entities)
+
 
 def get_ca_type_1(text_string):  
     '''Regular expressions to extract type of CA'''
@@ -143,38 +158,17 @@ def get_ca_type_1(text_string):
     ca_name = ca_name.strip()
     return ca_name
 
-def get_ca_type_2(text_string):  
-    '''Another method to find typr of CA in document
-    Not used as less efficient'''
-
-    text_string = text_string.lower()
-    div = {"dividend" : 0, 'interim' : 0}
-    bon = {"bonus" : 0, "bonus rights" : 0,"bonus shares" : 0, "bonus issue":0}
-    ss = {"stock split": 0, "split":0}
-    rss = {"reverse stock split":0, "reverse":0}
-    rts = {"rights issue":0, "issue right":0 }
-    mrgac = {"merger": 0, "mrgr":0, "acquir":0, "acquisition":0}
-    emp = {"employee":0, "scheme":0}
-    
-    ca_dict = {"dividend": div, "bonus": bon, "stock split": ss, "reverse stock split": rss, "rights issue": rts, "merge and acquisition": mrgac, "employee": emp}
-    ca_weight = {"dividend": 0, "bonus": 0, "stock split": 0, "reverse stock split": 0, "rights issue": 0, "merge and acquisition": 0,"employee": 0}
-
-    for word, ca in ca_dict.items():
-        for key in ca:
-            ca[key] = text_string.count(word)
-    for ca1 in ca_weight:
-        values = ca_dict[ca1].values()
-        ca_weight[ca1] = sum(values)
-    return (str(max(ca_weight, key=ca_weight.get)))
 
 def get_scrip(text_string):
-    '''Extraction of scrip code form document'''
     scrip=""
     text_string = text_string.lower()
-    regex = r"((security code)|(scrip code)|(code))(.*)(\d+)"
+    regex = r"((security code)|(scrip code)|(code))(.*)( \d\d\d\d\d\d)"
+    # (code.? bse)|(bse code)|
+    match = re.search(regex, text_string)  
     if match != None:
         scrip = match.group(6)
     return scrip
+
 
 def get_date(pdf):
     '''Extraction of announcement date from metadata of file'''
@@ -183,34 +177,50 @@ def get_date(pdf):
     try:
         date = md['date']
     except KeyError:
-        date = md['Creation-Date']
+        try:
+            date = md['Creation-Date']
+        except:
+            date = '2020-01-01'
     return(date[0:10])
 
-def get_other_dates():
-    '''To extract ecord date and pay date of CA
-    To be dmodified and improved
-    '''
-    matches = []
-    try:
-        matches = list(datefinder.find_dates(text_string, index=True, strict=False))
-        print(matches)
-        for match in matches:
-            print("match ",match)
-    except TypeError:
-        print ("TypeError")
-    except Error as e:
-        print("An error occured", e)
-    finally:
-        sorted_dates = sorted(matches)
-        print(sorted_dates) 
-    rec_date = str(sorted_dates[0])
-    pay_date = str(sorted_dates[len(sorted_dates-1])
-    return rec_date, pay_date
-        
+
+def get_other_dates(pdf,text_string):
+    ann_date = get_date(pdf)
+    ex_date=""
+    rec_date=""
+    pay_date=""
+    nlp = spacy.load('en_core_web_lg')
+    doc = nlp(text_string) 
+    extracted_entities = [(i.text, i.label_) for i in doc.ents]
+    # print(extracted_entities)
+    dates=set()
+    dates.add(pd.to_datetime(ann_date).date())
+    for i in extracted_entities:
+        if (i[1]) == 'DATE':
+            if len(i[0])>8:
+                try:
+                    thisdate = pd.to_datetime(i[0])
+                    if(thisdate.year == pd.to_datetime(ann_date).year):
+                        dates.add(thisdate)
+                except:
+                    pass
+    dates = sorted(dates)
+    datecount = len(dates)
+    if (datecount==3):
+        ex_date = str(dates[0])
+        rec_date = str(dates[1])
+        pay_date = str(dates[2])
+    if (datecount==2):
+        # ex_date = str(dates[0])
+        rec_date = str(dates[1])
+        pay_date = dates[2]
+    return ex_date[0:10],rec_date[0:10],pay_date[0:10]
+
+
 def get_div_data(text_string):
     pattern = re.compile(r"( z l | Z l | zl | Zl )")
     text_string = pattern.sub(r" rs 1 ", text_string)
-    print(text_string)
+    # print(text_string)
 
     # face value per share extraction
     fv = ""
@@ -226,6 +236,7 @@ def get_div_data(text_string):
         perc = match.group(0)
     return perc,fv
 
+
 def get_ss_data(text_string):
     pattern = re.compile(r"( z l | Z l | zl | Zl )") 
     # This fixes a small errror that occurs when rupee symbol is used which misreads 1 as l
@@ -240,60 +251,146 @@ def get_ss_data(text_string):
     return fv
 
 
-def connect_database():
-    try:
-        conn = mysql.connector.connect(host='database-1.chm9rhozwggi.us-east-1.rds.amazonaws.com',
+# def connect_database():
+#     conn = mysql.connector.connect(host='database-1.chm9rhozwggi.us-east-1.rds.amazonaws.com',
+#                                         user='admin',
+#                                         password='SIH_2020',
+#                                         database='web_server')
+#     cursor = conn.cursor()
+#     if conn.is_connected():
+#         cursor.execute("show tables")
+#         res = cursor.fetchall()
+#         print("Available tables: ", res,"\n")
+
+#     return(conn,cursor)
+
+
+def pdf_load(conn,cursor):
+    cursor.execute("SELECT url_of_file,company_name FROM dashboard_file_download where ca_extracted=0 limit 100")
+    pdf_links_from_table = pd.DataFrame(cursor.fetchall())
+    if len(pdf_links_from_table)!=0:
+        # print(pdf_links_from_table)
+        pdf_links = pdf_links_from_table[0].tolist()
+        # company_name = pdf_links[1].tolist()
+        # print("company links: ",company_name)
+        
+        for link in pdf_links:
+            # try:
+                r = requests.get(link,verify=False,stream=True,timeout=(5,20))
+                with open('data.pdf', 'wb') as fd:
+                    for chunk in r.iter_content(2000):
+                        fd.write(chunk)
+                
+                print(link)
+                text_string = read_pdf("data.pdf")
+                
+                print("------------------------------")
+                # print(text_string)
+                # print("------------------------------")
+                
+                
+                sql = "UPDATE dashboard_file_download SET ca_extracted=0 WHERE url_of_file=%s"
+                cursor.execute(sql ,(link,))
+
+                scrip_code = get_scrip(text_string)
+                date_ca = get_date("data.pdf")
+                ca_name = get_ca_type_1(text_string)
+                ex_date, rec_date, pay_date = get_other_dates("data.pdf", text_string)
+                if scrip_code!="":
+                    security_id_type = "scrip code"
+                else:
+                    security_id_type = "trading symbol"
+                print (date_ca ,ca_name, security_id_type,ex_date,rec_date , pay_date )
+
+                if ca_name=='dividend':
+                    perc, fv = get_div_data(text_string)
+                    remarks = fv
+                    sql = """INSERT INTO dashboard_dashboard (date_ca , 
+                    ca_name, 
+                    security_id_type,
+                    ex_date,
+                    rec_date , 
+                    pay_date ,
+                    remarks)
+                    VALUES
+                    (%s, 
+                    %s, 
+                    %s,
+                    %s,
+                    %s , 
+                    %s ,
+                    %s) """
+                    values = (date_ca ,ca_name, security_id_type,ex_date,rec_date , pay_date ,remarks)
+                    # cursor.execute(sql,values)
+                    print (date_ca ,ca_name, security_id_type,ex_date,rec_date , pay_date ,remarks)
+                
+                elif ca_name=='stock split':
+                    fv = get_ss_data(text_string)
+                    remarks = fv
+                    sql = """INSERT INTO dashboard_dashboard (date_ca , 
+                    ca_name , 
+                    security_id_type,
+                    ex_date , 
+                    rec_date , 
+                    pay_date ,
+                    remarks )
+                    VALUES
+                    (%s , 
+                    %s , 
+                    %s,
+                    %s , 
+                    %s , 
+                    %s ,
+                    %s ) """
+                    values = (date_ca , ca_name , security_id_type, ex_date , rec_date , pay_date , remarks )
+                    
+                    print (date_ca ,ca_name, security_id_type,ex_date,rec_date , pay_date ,remarks)
+                else:       
+                    remarks='else'
+                    sql = """INSERT INTO dashboard_dashboard (date_ca , 
+                    ca_name , 
+                    security_id_type,
+                    ex_date , 
+                    rec_date , 
+                    pay_date ,
+                    remarks)
+                    VALUES 
+                    (%s, 
+                    %s , 
+                    %s,
+                    %s , 
+                    %s , 
+                    %s,
+                    %s) """
+                    values = (date_ca , ca_name , security_id_type, ex_date , rec_date , pay_date , remarks )
+
+                cursor.execute(sql,values)
+                conn.commit()
+                # cursor.execute(sql)
+                
+            # except:
+            #     # cursor.execute("UPDATE crawler_2 set url_error=1 WHERE url_of_file=%s",(link,))
+            #     print("couldn't download from "+link)
+
+
+conn = mysql.connector.connect(host='database-1.chm9rhozwggi.us-east-1.rds.amazonaws.com',
                                         user='admin',
                                         password='SIH_2020',
-                                        database='pythanos_main')
-        cursor = conn.cursor()
-        if conn.is_connected():
-            cursor.execute("show tables")
-            res = cursor.fetchall()
-            print("Available databases: ", res)
+                                        database='web_server')
+cursor = conn.cursor()
+if conn.is_connected():
+    cursor.execute("show tables")
+    res = cursor.fetchall()
+    print("Available tables: ", res,"\n")
 
-    except:
-        print("Error while connecting to MySQL")
-
-    return(conn,cursor)
 
 
 if __name__ == "__main__":
     start_time = time.time()
-    conn,cursor = connect_database()
+    # conn,cursor = connect_database()
     print(conn)
-    sql = "SELECT file_url FROM crawler_2"
-    cursor.execute(sql)
-    pdf_list = cursor.fetchall()
-    for pdf in pdf_list:
-        
-        text_string = read_pdf(pdf)
-        scrip_code = get_scrip(text_string)
-        # trading_symbol = get_trading_symbol(text_string)
 
-        date = get_date(pdf)
-        # rec_date, pay_date = get_other_dates()
-        ca_name = get_ca_type_1(text_string)
-        if ca_name=='dividend':
-            perc,fv = get_div_data(text_string)
-            sql = """CREATE TABLE IF NOT EXISTS dashboard 
-                    (ca_name VARCHAR(20) NOT NULL, 
-                    date VARCHAR(10), 
-                    scrip_code VARCHAR(10),
-                    perc VARCHAR(10), 
-                    fv VARCHAR(25))
-                    """"
-        elif ca_name=='stock split':
-            fv = get_ss_data(text_string)
-            sql = """CREATE TABLE IF NOT EXISTS dashboard 
-                    (ca_name VARCHAR(20) NOT NULL, 
-                    date VARCHAR(10), 
-                    scrip_code VARCHAR(10),
-                    fv VARCHAR(25))
-                    """"
-        else:       
-            sql = "CREATE TABLE IF NOT EXISTS dashboard (ca_name VARCHAR(20) NOT NULL, date VARCHAR(10), scrip_code VARCHAR(10)"
-        cursor.execute(sql)
+    pdf_load(conn,cursor)
+ 
 
     print("main time = ", time.time() - start_time)
-        
